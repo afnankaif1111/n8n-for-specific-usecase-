@@ -406,7 +406,11 @@ function toReactFlowEdges(edges: Edge[]): ReactFlowEdge[] {
 // Main CreateWorkflow Component
 // ==========================================
 
-export function CreateWorkflow() {
+export interface CreateWorkflowProps {
+  isDark?: boolean
+}
+
+export function CreateWorkflow({ isDark = true }: CreateWorkflowProps = {}) {
   const savedWorkflow = getStoredWorkflow()
 
   const [nodes, setNodes, onNodesChange] = useNodesState(
@@ -820,6 +824,7 @@ export function CreateWorkflow() {
               onEdgesChange={onRfEdgesChange}
               onConnect={onConnect}
               nodeTypes={nodeTypes}
+              colorMode={isDark ? 'dark' : 'light'}
               fitView
             >
               <Controls className="!bg-card !border-border !fill-foreground [&>button]:!border-border [&>button]:!bg-card [&>button]:!text-foreground" />
@@ -828,7 +833,7 @@ export function CreateWorkflow() {
                 pannable
                 className="!bg-card !border !border-border !rounded-md"
                 nodeColor={(n) => (n.type === 'trigger' ? 'var(--primary, #6366f1)' : '#94a3b8')}
-                maskColor="rgba(0, 0, 0, 0.1)"
+                maskColor={isDark ? 'rgba(0, 0, 0, 0.6)' : 'rgba(0, 0, 0, 0.1)'}
               />
               <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
             </ReactFlow>
