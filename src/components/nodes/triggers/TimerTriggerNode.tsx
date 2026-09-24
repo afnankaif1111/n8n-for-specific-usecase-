@@ -22,17 +22,17 @@ export function TimerTriggerNode(props: NodeProps) {
           </div>
           <div>
             <div className="text-[10px] font-semibold tracking-wider uppercase text-muted-foreground">Trigger</div>
-            <div className="text-xs font-bold leading-none text-foreground">Timer Trigger</div>
+            <div className="text-xs font-bold leading-none text-foreground">FX Session & Timer</div>
           </div>
         </div>
         <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded border border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-400">
-          Timer
+          Session
         </span>
       </div>
 
       {/* Body */}
       <div className="pt-2 text-xs font-medium text-foreground">
-        {data.label || 'Scheduled Execution'}
+        {data.label || 'London / NY Overlap Session'}
       </div>
       {data.subtitle && (
         <div className="text-[11px] text-muted-foreground mt-0.5">

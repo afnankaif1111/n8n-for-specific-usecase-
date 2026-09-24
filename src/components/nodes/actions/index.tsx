@@ -19,10 +19,13 @@ export function ActionNodeDispatcher(props: NodeProps) {
   const kind = data?.actionKind || data?.kind
 
   switch (kind) {
+    case 'mt5':
     case 'lighter':
       return <LighterActionNode {...props} />
+    case 'ctrader':
     case 'hyperliquid':
       return <HyperliquidActionNode {...props} />
+    case 'broker':
     case 'backpack':
       return <BackpackActionNode {...props} />
     case 'trade':
@@ -39,6 +42,9 @@ export function ActionNodeDispatcher(props: NodeProps) {
  */
 export const actionNodeTypes = {
   action: ActionNodeDispatcher,
+  'action-mt5': LighterActionNode,
+  'action-ctrader': HyperliquidActionNode,
+  'action-broker': BackpackActionNode,
   'action-lighter': LighterActionNode,
   'action-hyperliquid': HyperliquidActionNode,
   'action-backpack': BackpackActionNode,

@@ -1,14 +1,17 @@
 import { Handle, Position, type NodeProps } from '@xyflow/react'
-import { Flame, ArrowUpRight, ArrowDownRight } from 'lucide-react'
+import { ArrowUpRight, ArrowDownRight, Zap } from 'lucide-react'
 
 export interface LighterActionData extends Record<string, unknown> {
   label: string
-  actionKind?: 'lighter'
-  actionType?: 'market' | 'limit' | 'cancel' | 'liquidity' | string
+  actionKind?: 'lighter' | 'mt5'
+  actionType?: 'market' | 'limit' | 'stop' | 'cancel' | 'liquidity' | string
   pair?: string
   side?: 'buy' | 'sell' | string
   amount?: string
+  lotSize?: string
   price?: string
+  sl?: string
+  tp?: string
   slippage?: string
   subtitle?: string
 }
@@ -17,20 +20,20 @@ export function LighterActionNode(props: NodeProps) {
   const data = props.data as unknown as LighterActionData
 
   const actionType = data.actionType || 'market'
-  const pair = data.pair || 'ETH-PERP'
+  const pair = data.pair || 'EUR/USD'
   const side = data.side || 'buy'
-  const amount = data.amount || '0.5 ETH'
+  const amount = data.amount || data.lotSize || '1.00 Lot'
   const price = data.price
   const isBuy = side.toLowerCase().includes('buy') || side.toLowerCase().includes('long')
 
   return (
-    <div className="min-w-[220px] max-w-[260px] rounded-xl border-2 border-border bg-card p-3 shadow-md transition-all hover:border-orange-500/50 text-left">
+    <div className="min-w-[220px] max-w-[260px] rounded-xl border-2 border-border bg-card p-3 shadow-md transition-all hover:border-emerald-500/50 text-left">
       {/* Target Handles - Left for horizontal flow, Top for vertical flow */}
       <Handle
         type="target"
         position={Position.Left}
         id="target-left"
-        className="!h-3 !w-3 !rounded-full !bg-orange-500 !border-2 !border-background"
+        className="!h-3 !w-3 !rounded-full !bg-emerald-500 !border-2 !border-background"
       />
       <Handle
         type="target"
@@ -42,15 +45,15 @@ export function LighterActionNode(props: NodeProps) {
       {/* Header */}
       <div className="flex items-center justify-between pb-2 border-b border-border/60">
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-orange-500/30 bg-orange-500/10 text-orange-500">
-            <Flame className="h-4 w-4" />
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-500">
+            <Zap className="h-4 w-4" />
           </div>
           <div>
             <div className="text-[10px] font-semibold tracking-wider uppercase text-muted-foreground">Action</div>
-            <div className="text-xs font-bold leading-none text-foreground">Lighter DEX</div>
+            <div className="text-xs font-bold leading-none text-foreground">MetaTrader 5</div>
           </div>
         </div>
-        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded border border-orange-500/30 bg-orange-500/10 text-orange-600 dark:text-orange-400">
+        <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
           {pair}
         </span>
       </div>
@@ -67,7 +70,7 @@ export function LighterActionNode(props: NodeProps) {
             <span className={isBuy ? 'text-emerald-600 dark:text-emerald-400 uppercase font-bold' : 'text-rose-600 dark:text-rose-400 uppercase font-bold'}>
               {side}
             </span>
-            <span className="text-muted-foreground font-mono text-[11px]">
+            <span className="text-foreground font-mono text-[11px] font-semibold">
               {amount}
             </span>
           </div>
@@ -78,7 +81,7 @@ export function LighterActionNode(props: NodeProps) {
 
         {price && (
           <div className="text-[11px] font-mono text-muted-foreground">
-            Limit: <span className="font-semibold text-foreground">${price}</span>
+            Price / Limit: <span className="font-semibold text-foreground">{price}</span>
           </div>
         )}
 
@@ -94,14 +97,17 @@ export function LighterActionNode(props: NodeProps) {
         type="source"
         position={Position.Right}
         id="source-right"
-        className="!h-3 !w-3 !rounded-full !bg-orange-500 !border-2 !border-background"
+        className="!h-3 !w-3 !rounded-full !bg-emerald-500 !border-2 !border-background"
       />
       <Handle
         type="source"
         position={Position.Bottom}
         id="source-bottom"
-        className="!h-2.5 !w-2.5 !rounded-full !bg-orange-500 !border-2 !border-background opacity-60 hover:opacity-100"
+        className="!h-2.5 !w-2.5 !rounded-full !bg-emerald-500 !border-2 !border-background opacity-60 hover:opacity-100"
       />
     </div>
   )
 }
+
+export const MT5ActionNode = LighterActionNode
+

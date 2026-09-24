@@ -107,9 +107,9 @@ export const NODE_TYPES_LIST: NodeTypeItem[] = [
     id: 'trigger-price',
     type: 'trigger',
     kind: 'price',
-    title: 'Price Trigger',
+    title: 'Forex Rate Trigger',
     category: 'Trigger',
-    description: 'Fires when asset price crosses or reaches target threshold',
+    description: 'Fires when currency pair exchange rate crosses target threshold',
     icon: TrendingUp,
     colorClass: 'text-amber-500 bg-amber-500/10 border-amber-500/20',
     badgeClass: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30',
@@ -118,9 +118,9 @@ export const NODE_TYPES_LIST: NodeTypeItem[] = [
     id: 'trigger-timer',
     type: 'trigger',
     kind: 'timer',
-    title: 'Timer Trigger',
+    title: 'FX Session & Timer',
     category: 'Trigger',
-    description: 'Schedules recurring execution or cron delays',
+    description: 'Schedules according to London/NY/Tokyo sessions or cron delays',
     icon: Clock,
     colorClass: 'text-blue-500 bg-blue-500/10 border-blue-500/20',
     badgeClass: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30',
@@ -129,9 +129,9 @@ export const NODE_TYPES_LIST: NodeTypeItem[] = [
     id: 'trigger-hyperliquid',
     type: 'trigger',
     kind: 'hyperliquid',
-    title: 'Hyperliquid Trigger',
+    title: 'MetaTrader 5 Trigger',
     category: 'Trigger',
-    description: 'Listens to Hyperliquid perp fills, funding, or liquidation alerts',
+    description: 'Monitors MT4/MT5 terminal margin, equity drawdown, or fill alerts',
     icon: Zap,
     colorClass: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
     badgeClass: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
@@ -140,9 +140,9 @@ export const NODE_TYPES_LIST: NodeTypeItem[] = [
     id: 'trigger-backpack',
     type: 'trigger',
     kind: 'backpack',
-    title: 'Backpack Trigger',
+    title: 'Economic Calendar',
     category: 'Trigger',
-    description: 'Monitors Backpack spot exchange balances and order executions',
+    description: 'Monitors US NFP, FOMC rate decisions, and CPI inflation releases',
     icon: Briefcase,
     colorClass: 'text-rose-500 bg-rose-500/10 border-rose-500/20',
     badgeClass: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30',
@@ -151,55 +151,55 @@ export const NODE_TYPES_LIST: NodeTypeItem[] = [
     id: 'trigger-lighter',
     type: 'trigger',
     kind: 'lighter',
-    title: 'Lighter Trigger',
+    title: 'Broker Spread & Liquidity',
     category: 'Trigger',
-    description: 'Watches Lighter orderbook, DEX depth, and spread changes',
+    description: 'Watches ECN broker bid/ask spreads, rollover swaps, and depth',
     icon: Flame,
     colorClass: 'text-orange-500 bg-orange-500/10 border-orange-500/20',
     badgeClass: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/30',
   },
 
-  // Action nodes (including Lighter DEX)
+  // Action nodes
   {
     id: 'action-lighter',
     type: 'action',
     actionKind: 'lighter',
-    title: 'Lighter DEX Action',
+    title: 'MetaTrader 5 Action',
     category: 'Action',
-    description: 'Dispatches limit or market orders directly on Lighter DEX',
-    icon: Flame,
-    colorClass: 'text-orange-500 bg-orange-500/10 border-orange-500/20',
-    badgeClass: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/30',
-  },
-  {
-    id: 'action-hyperliquid',
-    type: 'action',
-    actionKind: 'hyperliquid',
-    title: 'Hyperliquid Perp Action',
-    category: 'Action',
-    description: 'Executes perpetual futures orders on Hyperliquid DEX',
+    description: 'Dispatches market, limit, or stop orders to MT4/MT5 terminals',
     icon: Zap,
     colorClass: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
     badgeClass: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
   },
   {
+    id: 'action-hyperliquid',
+    type: 'action',
+    actionKind: 'hyperliquid',
+    title: 'cTrader / FIX API Action',
+    category: 'Action',
+    description: 'Executes ultra low-latency institutional ECN orders via FIX 4.4',
+    icon: Zap,
+    colorClass: 'text-teal-500 bg-teal-500/10 border-teal-500/20',
+    badgeClass: 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/30',
+  },
+  {
     id: 'action-backpack',
     type: 'action',
     actionKind: 'backpack',
-    title: 'Backpack Spot Action',
+    title: 'Forex Broker Router',
     category: 'Action',
-    description: 'Executes spot order routing and swaps on Backpack Exchange',
+    description: 'Routes spot forex trades to lowest spread broker (OANDA, IC Markets)',
     icon: Briefcase,
-    colorClass: 'text-rose-500 bg-rose-500/10 border-rose-500/20',
-    badgeClass: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30',
+    colorClass: 'text-indigo-500 bg-indigo-500/10 border-indigo-500/20',
+    badgeClass: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/30',
   },
   {
     id: 'action-trade',
     type: 'action',
     actionKind: 'trade',
-    title: 'Universal Swap Router',
+    title: 'FX Risk & Position Manager',
     category: 'Action',
-    description: 'Dispatches optimal trades across DEX aggregators',
+    description: 'Automated trailing stops, break-even shifts, and currency hedging',
     icon: Play,
     colorClass: 'text-purple-500 bg-purple-500/10 border-purple-500/20',
     badgeClass: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30',
@@ -207,9 +207,9 @@ export const NODE_TYPES_LIST: NodeTypeItem[] = [
   {
     id: 'condition-filter',
     type: 'condition',
-    title: 'Logic / Condition',
+    title: 'Risk & Margin Check',
     category: 'Logic',
-    description: 'Branching logic evaluating volatility, volume, or RSI',
+    description: 'Branching logic evaluating free margin, spread, and ADR volatility',
     icon: GitBranch,
     colorClass: 'text-cyan-500 bg-cyan-500/10 border-cyan-500/20',
     badgeClass: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/30',
@@ -217,12 +217,12 @@ export const NODE_TYPES_LIST: NodeTypeItem[] = [
   {
     id: 'notification-alert',
     type: 'notification',
-    title: 'Alert Notification',
+    title: 'Forex Signal / Alert',
     category: 'Output',
-    description: 'Broadcasts notification via Telegram, Discord, or Webhook',
+    description: 'Broadcasts trade signals and margin warnings to Telegram/Discord',
     icon: Bell,
-    colorClass: 'text-indigo-500 bg-indigo-500/10 border-indigo-500/20',
-    badgeClass: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/30',
+    colorClass: 'text-blue-500 bg-blue-500/10 border-blue-500/20',
+    badgeClass: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30',
   },
 ]
 
@@ -292,7 +292,7 @@ const nodeTypes = {
 // Storage and Persistence Helpers
 // ==========================================
 
-const WORKFLOW_STORAGE_KEY = 'created_workflow_state_v1'
+const WORKFLOW_STORAGE_KEY = 'forex_workflow_state_v1'
 
 interface StoredWorkflowData {
   nodes: Node[]
@@ -307,14 +307,14 @@ const defaultInitialNodes: Node[] = [
     type: 'trigger',
     position: { x: 80, y: 40 },
     data: {
-      label: 'BTC > $95,000 Threshold',
+      label: 'EUR/USD > 1.0920 Breakout',
       nodeType: 'trigger',
       kind: 'price',
-      asset: 'BTC/USDT',
-      price: '95,000',
+      asset: 'EUR/USD',
+      price: '1.09200',
       condition: 'above',
       timer: 'Every 15s',
-      subtitle: 'Asset price monitoring',
+      subtitle: 'Currency spot rate monitoring',
     },
   },
   {
@@ -322,10 +322,10 @@ const defaultInitialNodes: Node[] = [
     type: 'trigger',
     position: { x: 340, y: 40 },
     data: {
-      label: 'Hyperliquid Position Check',
+      label: 'London / NY Overlap Session',
       nodeType: 'trigger',
-      kind: 'hyperliquid',
-      subtitle: 'Listen for liquidation buffer',
+      kind: 'timer',
+      subtitle: 'High volatility liquidity window',
     },
   },
   {
@@ -333,9 +333,9 @@ const defaultInitialNodes: Node[] = [
     type: 'condition',
     position: { x: 210, y: 190 },
     data: {
-      label: 'Evaluate Risk / Margin',
+      label: 'Risk Check (Spread < 1.2 Pips)',
       nodeType: 'condition',
-      subtitle: 'Margin Ratio > 20%',
+      subtitle: 'Free Margin > $2,000 & Low Spread',
     },
   },
   {
@@ -343,10 +343,14 @@ const defaultInitialNodes: Node[] = [
     type: 'action',
     position: { x: 210, y: 320 },
     data: {
-      label: 'Backpack Spot Rebalance',
+      label: 'MT5: Market Buy 1.00 Lot EUR/USD',
       nodeType: 'action',
-      actionKind: 'backpack',
-      subtitle: 'Execute order via API',
+      actionKind: 'lighter',
+      pair: 'EUR/USD',
+      side: 'buy',
+      amount: '1.00 Lot',
+      slippage: '0.5 pips',
+      subtitle: 'SL: 20 pips • TP: 40 pips',
     },
   },
 ]
@@ -468,74 +472,6 @@ export function CreateWorkflow({ isDark = true }: CreateWorkflowProps = {}) {
     [setNodes]
   )
 
-  // Auto-save whenever a node is added from the types of nodes list
-  const handleAddNodeFromList = useCallback(
-    (item: NodeTypeItem) => {
-      const nextId = `${item.type}_${Date.now()}`
-      const nodeCount = nodes.length + 1
-
-      const isPrice = item.kind === 'price'
-      const newNode: Node = {
-        id: nextId,
-        type: item.type,
-        position: {
-          x: 180 + Math.floor(Math.random() * 200),
-          y: 100 + Math.floor(Math.random() * 180),
-        },
-        data: item.type === 'trigger'
-          ? {
-              label: `${item.title} #${nodeCount}`,
-              nodeType: 'trigger',
-              kind: item.kind ?? 'price',
-              subtitle: item.description,
-              ...(isPrice ? {
-                asset: 'BTC/USDT',
-                price: '95,000',
-                condition: 'above',
-                timer: 'Every 15s',
-              } : {}),
-            }
-          : item.type === 'action'
-          ? {
-              label: `${item.title} #${nodeCount}`,
-              nodeType: 'action',
-              actionKind: item.actionKind || 'lighter',
-              subtitle: item.description,
-              ...(item.actionKind === 'lighter' ? {
-                pair: 'ETH-PERP',
-                side: 'buy',
-                amount: '0.5 ETH',
-                actionType: 'market',
-                slippage: '0.5%',
-              } : item.actionKind === 'hyperliquid' ? {
-                pair: 'ETH-PERP',
-                side: 'Long',
-                leverage: '5x',
-              } : item.actionKind === 'backpack' ? {
-                pair: 'SOL/USDC',
-                side: 'Buy',
-              } : {}),
-            }
-          : {
-              label: `${item.title} #${nodeCount}`,
-              nodeType: item.type,
-              subtitle: item.description,
-            },
-      }
-
-      setNodes((currentNodes) => {
-        const updatedNodes = [...currentNodes, newNode]
-        const time = storeWorkflow(updatedNodes, customEdges, `${item.title} added`)
-        if (time) {
-          setLastSavedTime(time)
-          setSaveStatus(`Node "${item.title}" added & saved at ${time}`)
-        }
-        return updatedNodes
-      })
-    },
-    [nodes.length, customEdges, setNodes]
-  )
-
   // Auto-save whenever a trigger is added via TriggerSheet
   const handleAddTriggerFromSheet = useCallback(
     (
@@ -642,11 +578,11 @@ export function CreateWorkflow({ isDark = true }: CreateWorkflowProps = {}) {
           <div className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
             <h2 className="text-base font-semibold text-foreground tracking-tight">
-              Create Workflow Canvas
+              Forex Workflow Canvas
             </h2>
           </div>
           <p className="text-xs text-muted-foreground">
-            Connect triggers (Price, Timer, Hyperliquid, Backpack, Lighter) with actions using custom edges.
+            Connect Forex triggers (Rate, Session, MT5, Economic Calendar, Spread) with execution actions using custom edges.
           </p>
         </div>
 
@@ -753,7 +689,7 @@ export function CreateWorkflow({ isDark = true }: CreateWorkflowProps = {}) {
             {/* Other Workflow Nodes Section */}
             <div className="space-y-1.5 pt-2 border-t border-border">
               <div className="flex items-center justify-between text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                <span>Actions & Logic (with Lighter)</span>
+                <span>Actions & Logic (with MT5)</span>
                 <ActionSheet
                   onAddAction={handleAddActionFromSheet}
                   triggerElement={

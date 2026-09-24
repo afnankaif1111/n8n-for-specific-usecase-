@@ -22,10 +22,13 @@ export function TriggerNodeDispatcher(props: NodeProps) {
       return <PriceTriggerNode {...props} />
     case 'timer':
       return <TimerTriggerNode {...props} />
+    case 'mt5':
     case 'hyperliquid':
       return <HyperliquidTriggerNode {...props} />
+    case 'news':
     case 'backpack':
       return <BackpackTriggerNode {...props} />
+    case 'broker':
     case 'lighter':
       return <LighterTriggerNode {...props} />
     default:
@@ -40,6 +43,9 @@ export const triggerNodeTypes = {
   trigger: TriggerNodeDispatcher,
   'trigger-price': PriceTriggerNode,
   'trigger-timer': TimerTriggerNode,
+  'trigger-mt5': HyperliquidTriggerNode,
+  'trigger-news': BackpackTriggerNode,
+  'trigger-broker': LighterTriggerNode,
   'trigger-hyperliquid': HyperliquidTriggerNode,
   'trigger-backpack': BackpackTriggerNode,
   'trigger-lighter': LighterTriggerNode,

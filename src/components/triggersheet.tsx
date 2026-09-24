@@ -48,58 +48,58 @@ export interface TriggerDefinition {
 export const TRIGGER_OPTIONS: TriggerDefinition[] = [
   {
     kind: 'price',
-    title: 'Price Trigger',
-    subtitle: 'Market & Oracle Feeds',
-    description: 'Fires when asset price crosses above or below a target value on Binance, Pyth, or Chainlink.',
+    title: 'Forex Rate Trigger',
+    subtitle: 'Market & Spot Rates',
+    description: 'Fires when currency pair exchange rate crosses above or below target threshold.',
     icon: TrendingUp,
-    defaultLabel: 'BTC Price > $95,000',
+    defaultLabel: 'EUR/USD Rate > 1.0920',
     color: 'text-amber-500 bg-amber-500/10 border-amber-500/20',
     badgeColor: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30',
-    presets: ['BTC > $95k', 'ETH < $2,600', 'SOL Breakout $180', 'Custom Asset'],
+    presets: ['EUR/USD > 1.0920', 'GBP/USD < 1.2850', 'USD/JPY Breakout > 155.50', 'XAU/USD (Gold) > 2,650'],
   },
   {
     kind: 'timer',
-    title: 'Timer Trigger',
-    subtitle: 'Schedule & Delays',
-    description: 'Executes workflows periodically (cron schedule, recurring interval, or delayed countdown).',
+    title: 'FX Session & Timer',
+    subtitle: 'Trading Sessions & Schedule',
+    description: 'Triggers on Forex market session opens (London, New York, Tokyo) or recurring intervals.',
     icon: Clock,
-    defaultLabel: 'Run Every 15 Minutes',
+    defaultLabel: 'London / NY Overlap Session',
     color: 'text-blue-500 bg-blue-500/10 border-blue-500/20',
     badgeColor: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30',
-    presets: ['Every 5 Minutes', 'Hourly Check', 'Daily at 00:00 UTC', 'Custom Cron'],
+    presets: ['London Open (08:00 GMT)', 'London / NY Overlap (13:00 GMT)', 'Tokyo Asian Open (00:00 GMT)', 'Daily 4H Candle Close'],
   },
   {
     kind: 'hyperliquid',
-    title: 'Hyperliquid Trigger',
-    subtitle: 'Perpetuals DEX Events',
-    description: 'Monitors Hyperliquid perp fills, account liquidation alerts, funding rates, or margin health.',
+    title: 'MetaTrader 5 Trigger',
+    subtitle: 'MT4 / MT5 Terminal Events',
+    description: 'Monitors MetaTrader terminal equity, margin call health, pending order fills, and trailing stops.',
     icon: Zap,
-    defaultLabel: 'HL Perp Fill / Liquidation Alert',
+    defaultLabel: 'MT5 Margin Level < 120% Alert',
     color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
     badgeColor: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
-    presets: ['Perp Order Filled', 'Funding Rate > 0.05%', 'Margin Health < 25%', 'Position Liquidation Alert'],
+    presets: ['Margin Level < 120%', 'Pending Order Filled', 'Trailing Stop Triggered', 'Daily Drawdown > 3%'],
   },
   {
     kind: 'backpack',
-    title: 'Backpack Trigger',
-    subtitle: 'Spot & Custody Events',
-    description: 'Monitors Backpack spot exchange order executions, deposit confirmations, and wallet balance changes.',
+    title: 'Economic Calendar Trigger',
+    subtitle: 'Macro News & Central Banks',
+    description: 'Fires ahead of or upon high-impact macroeconomic events like US NFP, FOMC, CPI, and ECB rate decisions.',
     icon: Briefcase,
-    defaultLabel: 'Backpack Order Executed',
+    defaultLabel: 'US Non-Farm Payrolls (NFP) Release',
     color: 'text-rose-500 bg-rose-500/10 border-rose-500/20',
     badgeColor: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30',
-    presets: ['Spot Order Executed', 'Deposit Confirmed', 'Balance Threshold Met', 'New Pair Listed'],
+    presets: ['US NFP Payrolls (High Impact)', 'FOMC Interest Rate Decision', 'US CPI Inflation Release', 'ECB Rate Statement'],
   },
   {
     kind: 'lighter',
-    title: 'Lighter Trigger',
-    subtitle: 'Orderbook & Liquidity',
-    description: 'Watches Lighter DEX orderbook spread variations, large block fills, and sudden liquidity shifts.',
+    title: 'Broker Spread & Liquidity',
+    subtitle: 'ECN Spread & Rollover Monitor',
+    description: 'Watches ECN broker bid/ask spread spikes, rollover swap times, and market depth variations.',
     icon: Flame,
-    defaultLabel: 'Lighter Orderbook Alert',
+    defaultLabel: 'Spread Widening Alert (> 1.8 Pips)',
     color: 'text-orange-500 bg-orange-500/10 border-orange-500/20',
     badgeColor: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/30',
-    presets: ['Spread > 0.4%', 'Volume Spike (15m)', 'Large Block Fill', 'Pool Depth Imbalance'],
+    presets: ['Spread Spike > 1.8 Pips', 'Rollover Liquidity Filter', 'Tick Volume Surge (15m)', 'Weekend Gap Warning'],
   },
 ]
 
@@ -117,11 +117,11 @@ export function TriggerSheet({ onAddTrigger, triggerElement }: TriggerSheetProps
   const [open, setOpen] = useState(false)
   const [selectedKind, setSelectedKind] = useState<TriggerKind>('price')
   const [customLabel, setCustomLabel] = useState('')
-  const [selectedPreset, setSelectedPreset] = useState<string>('BTC > $95k')
+  const [selectedPreset, setSelectedPreset] = useState<string>('EUR/USD > 1.0920')
 
   // Price Trigger specific input parameters
-  const [priceAsset, setPriceAsset] = useState('BTC/USDT')
-  const [priceTarget, setPriceTarget] = useState('95,000')
+  const [priceAsset, setPriceAsset] = useState('EUR/USD')
+  const [priceTarget, setPriceTarget] = useState('1.09200')
   const [priceCondition, setPriceCondition] = useState<'above' | 'below'>('above')
   const [priceTimer, setPriceTimer] = useState('15s')
 
@@ -139,24 +139,30 @@ export function TriggerSheet({ onAddTrigger, triggerElement }: TriggerSheetProps
   const handleApplyPreset = (preset: string) => {
     setSelectedPreset(preset)
     if (selectedKind === 'price') {
-      if (preset.includes('BTC')) {
-        setPriceAsset('BTC/USDT')
+      if (preset.includes('EUR')) {
+        setPriceAsset('EUR/USD')
         setPriceCondition('above')
-        setPriceTarget('95,000')
+        setPriceTarget('1.09200')
         setPriceTimer('15s')
-        setCustomLabel('BTC Price > $95,000')
-      } else if (preset.includes('ETH')) {
-        setPriceAsset('ETH/USDT')
+        setCustomLabel('EUR/USD Rate > 1.0920')
+      } else if (preset.includes('GBP')) {
+        setPriceAsset('GBP/USD')
         setPriceCondition('below')
-        setPriceTarget('2,600')
+        setPriceTarget('1.28500')
         setPriceTimer('30s')
-        setCustomLabel('ETH Price < $2,600')
-      } else if (preset.includes('SOL')) {
-        setPriceAsset('SOL/USDT')
+        setCustomLabel('GBP/USD Rate < 1.2850')
+      } else if (preset.includes('JPY')) {
+        setPriceAsset('USD/JPY')
         setPriceCondition('above')
-        setPriceTarget('180')
+        setPriceTarget('155.500')
         setPriceTimer('10s')
-        setCustomLabel('SOL Breakout > $180')
+        setCustomLabel('USD/JPY Breakout > 155.50')
+      } else if (preset.includes('XAU')) {
+        setPriceAsset('XAU/USD')
+        setPriceCondition('above')
+        setPriceTarget('2,650.00')
+        setPriceTimer('15s')
+        setCustomLabel('XAU/USD Gold Breakout > 2,650')
       } else {
         setCustomLabel(`${activeTrigger.title}: ${preset}`)
       }
@@ -168,14 +174,14 @@ export function TriggerSheet({ onAddTrigger, triggerElement }: TriggerSheetProps
   const handleConfirmAdd = () => {
     if (selectedKind === 'price') {
       const conditionSymbol = priceCondition === 'above' ? '>' : '<'
-      const generatedLabel = `${priceAsset || 'BTC/USDT'} ${conditionSymbol} $${priceTarget || '0'}`
+      const generatedLabel = `${priceAsset || 'EUR/USD'} ${conditionSymbol} ${priceTarget || '1.09200'}`
       const finalLabel = customLabel.trim() || generatedLabel
       const formattedTimer = priceTimer ? `Every ${priceTimer.replace(/^Every\s+/i, '')}` : 'Every 15s'
       const subtitle = `Polls ${priceTimer || '15s'} • Condition: ${priceCondition}`
 
       onAddTrigger(selectedKind, finalLabel, subtitle, {
-        asset: priceAsset || 'BTC/USDT',
-        price: priceTarget || '95,000',
+        asset: priceAsset || 'EUR/USD',
+        price: priceTarget || '1.09200',
         condition: priceCondition,
         timer: formattedTimer,
       })
@@ -188,9 +194,9 @@ export function TriggerSheet({ onAddTrigger, triggerElement }: TriggerSheetProps
 
   const handleQuickAdd = (trigger: TriggerDefinition) => {
     if (trigger.kind === 'price') {
-      onAddTrigger(trigger.kind, 'BTC Price > $95,000', 'Polls 15s • Condition: above', {
-        asset: 'BTC/USDT',
-        price: '95,000',
+      onAddTrigger(trigger.kind, 'EUR/USD Rate > 1.0920', 'Polls 15s • Condition: above', {
+        asset: 'EUR/USD',
+        price: '1.09200',
         condition: 'above',
         timer: 'Every 15s',
       })
@@ -349,21 +355,21 @@ export function TriggerSheet({ onAddTrigger, triggerElement }: TriggerSheetProps
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-medium text-foreground flex items-center gap-1">
                       <Coins className="h-3.5 w-3.5 text-muted-foreground" />
-                      <span>Asset / Pair</span>
+                      <span>Currency Pair / Asset</span>
                     </label>
-                    <span className="text-[10px] text-muted-foreground">e.g. BTC/USDT, ETH/USDT</span>
+                    <span className="text-[10px] text-muted-foreground">e.g. EUR/USD, GBP/USD</span>
                   </div>
                   <input
                     type="text"
                     value={priceAsset}
                     onChange={(e) => setPriceAsset(e.target.value)}
-                    placeholder="BTC/USDT"
+                    placeholder="EUR/USD"
                     className="w-full h-8 px-3 rounded-lg border border-border bg-card text-foreground text-xs font-mono placeholder:text-muted-foreground focus:outline-none focus:border-amber-500 transition-colors"
                   />
                   {/* Quick Asset Selector */}
                   <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                     <span className="text-[10px] text-muted-foreground mr-0.5">Quick:</span>
-                    {['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'SUI/USDT'].map((pair) => (
+                    {['EUR/USD', 'GBP/USD', 'USD/JPY', 'USD/CHF', 'AUD/USD', 'USD/CAD', 'XAU/USD'].map((pair) => (
                       <button
                         key={pair}
                         type="button"
@@ -385,9 +391,9 @@ export function TriggerSheet({ onAddTrigger, triggerElement }: TriggerSheetProps
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-medium text-foreground flex items-center gap-1">
                       <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
-                      <span>Target Price & Condition</span>
+                      <span>Target Rate & Condition</span>
                     </label>
-                    <span className="text-[10px] text-muted-foreground">Threshold</span>
+                    <span className="text-[10px] text-muted-foreground">Exchange Rate</span>
                   </div>
 
                   <div className="grid grid-cols-12 gap-2">
@@ -421,15 +427,15 @@ export function TriggerSheet({ onAddTrigger, triggerElement }: TriggerSheetProps
 
                     {/* Price Input */}
                     <div className="col-span-7 relative">
-                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-muted-foreground">
-                        $
+                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-muted-foreground font-mono">
+                        FX
                       </span>
                       <input
                         type="text"
                         value={priceTarget}
                         onChange={(e) => setPriceTarget(e.target.value)}
-                        placeholder="95,000"
-                        className="w-full h-8 pl-6 pr-3 rounded-lg border border-border bg-card text-foreground text-xs font-mono placeholder:text-muted-foreground focus:outline-none focus:border-amber-500 transition-colors"
+                        placeholder="1.09200"
+                        className="w-full h-8 pl-8 pr-3 rounded-lg border border-border bg-card text-foreground text-xs font-mono placeholder:text-muted-foreground focus:outline-none focus:border-amber-500 transition-colors"
                       />
                     </div>
                   </div>
@@ -481,11 +487,11 @@ export function TriggerSheet({ onAddTrigger, triggerElement }: TriggerSheetProps
                   <div className="text-foreground text-xs font-medium leading-relaxed">
                     Fires when{' '}
                     <span className="text-amber-600 dark:text-amber-400 font-mono font-bold">
-                      {priceAsset || 'Asset'}
+                      {priceAsset || 'EUR/USD'}
                     </span>{' '}
                     is {priceCondition === 'above' ? 'greater than' : 'less than'}{' '}
                     <span className="font-mono font-bold text-foreground">
-                      ${priceTarget || '0'}
+                      {priceTarget || '1.09200'}
                     </span>
                     , evaluated{' '}
                     <span className="font-mono font-bold text-primary">

@@ -107,17 +107,17 @@ async function runTests() {
         method: 'POST',
         headers: authHeaders,
         body: JSON.stringify({
-          title: 'Automated ETH Rebalance Workflow',
+          title: 'Automated EUR/USD Breakout Workflow',
           nodes: [
             {
               id: 'trigger-1',
               type: 'trigger',
-              data: { kind: 'price', asset: 'ETH/USDT', price: '2600' },
+              data: { kind: 'price', asset: 'EUR/USD', price: '1.09200' },
             },
             {
               id: 'action-1',
               type: 'action',
-              data: { kind: 'lighter', pair: 'ETH-PERP', actionType: 'market', side: 'buy' },
+              data: { kind: 'lighter', pair: 'EUR/USD', actionType: 'market', side: 'buy', amount: '1.00 Lot' },
             },
           ],
           edges: [
@@ -138,12 +138,12 @@ async function runTests() {
         method: 'POST',
         headers: authHeaders,
         body: JSON.stringify({
-          title: 'Lighter DEX Mainnet Key',
-          type: 'lighter',
+          title: 'MetaTrader 5 Main Terminal Key',
+          type: 'mt5',
           credentialType: 'api_key_secret',
           data: {
-            apiKey: 'light_api_key_987654321',
-            apiSecret: 'light_secret_999988887777',
+            apiKey: 'mt5_account_10928374',
+            apiSecret: 'mt5_secret_token_secure',
           },
         }),
       })
@@ -185,7 +185,11 @@ async function runTests() {
   }
 }
 
-runTests().catch((err) => {
-  console.error('Test execution error:', err)
-  process.exit(1)
-})
+runTests()
+  .then(() => {
+    process.exit(0)
+  })
+  .catch((err) => {
+    console.error('Test execution error:', err)
+    process.exit(1)
+  })

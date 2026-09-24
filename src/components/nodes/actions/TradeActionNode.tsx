@@ -32,17 +32,17 @@ export function TradeActionNode(props: NodeProps) {
           </div>
           <div>
             <div className="text-[10px] font-semibold tracking-wider uppercase text-muted-foreground">Action</div>
-            <div className="text-xs font-bold leading-none text-foreground">Execute Trade</div>
+            <div className="text-xs font-bold leading-none text-foreground">FX Risk Manager</div>
           </div>
         </div>
         <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded border border-purple-500/30 bg-purple-500/10 text-purple-600 dark:text-purple-400">
-          Router
+          Risk Engine
         </span>
       </div>
 
       <div className="pt-2 space-y-1">
         <div className="text-xs font-medium text-foreground">
-          {data.label || 'Universal DEX Swap'}
+          {data.label || 'Move SL to Break-Even (+10 Pips)'}
         </div>
         {data.subtitle && (
           <div className="text-[10px] text-muted-foreground pt-0.5 line-clamp-1">

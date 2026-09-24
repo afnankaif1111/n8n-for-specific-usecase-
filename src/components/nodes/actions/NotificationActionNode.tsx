@@ -32,17 +32,17 @@ export function NotificationActionNode(props: NodeProps) {
           </div>
           <div>
             <div className="text-[10px] font-semibold tracking-wider uppercase text-muted-foreground">Action</div>
-            <div className="text-xs font-bold leading-none text-foreground">Notification</div>
+            <div className="text-xs font-bold leading-none text-foreground">Forex Signal Alert</div>
           </div>
         </div>
         <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded border border-indigo-500/30 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
-          Alert
+          FX Signal
         </span>
       </div>
 
       <div className="pt-2 space-y-1">
         <div className="text-xs font-medium text-foreground">
-          {data.label || 'Broadcast Alert'}
+          {data.label || 'Send Telegram FX Signal'}
         </div>
         {data.subtitle && (
           <div className="text-[10px] text-muted-foreground pt-0.5 line-clamp-1">

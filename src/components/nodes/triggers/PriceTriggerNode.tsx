@@ -16,8 +16,8 @@ export interface PriceTriggerData extends Record<string, unknown> {
 export function PriceTriggerNode(props: NodeProps) {
   const data = props.data as unknown as PriceTriggerData
 
-  const asset = data.asset || data.pair || 'BTC/USDT'
-  const price = data.price || data.targetPrice || '95,000'
+  const asset = data.asset || data.pair || 'EUR/USD'
+  const price = data.price || data.targetPrice || '1.09200'
   const condition = data.condition || 'above'
   const timer = data.timer
 
@@ -31,10 +31,10 @@ export function PriceTriggerNode(props: NodeProps) {
           </div>
           <div>
             <div className="text-[10px] font-semibold tracking-wider uppercase text-muted-foreground">Trigger</div>
-            <div className="text-xs font-bold leading-none text-foreground">Price Trigger</div>
+            <div className="text-xs font-bold leading-none text-foreground">Forex Rate Trigger</div>
           </div>
         </div>
-        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400">
+        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-mono">
           {asset}
         </span>
       </div>
@@ -48,9 +48,9 @@ export function PriceTriggerNode(props: NodeProps) {
             ) : (
               <ArrowDownRight className="h-3.5 w-3.5 text-rose-500" />
             )}
-            <span>{condition === 'above' ? 'Price >' : 'Price <'}</span>
+            <span>{condition === 'above' ? 'Rate >' : 'Rate <'}</span>
             <span className="text-amber-600 dark:text-amber-400 font-mono font-bold">
-              ${price}
+              {price}
             </span>
           </div>
         </div>

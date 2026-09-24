@@ -51,58 +51,58 @@ export interface ActionDefinition {
 export const ACTION_OPTIONS: ActionDefinition[] = [
   {
     kind: 'lighter',
-    title: 'Lighter DEX Action',
-    subtitle: 'Orderbook & Liquidity Execution',
-    description: 'Dispatches high-frequency limit, market, or cancellation orders directly on Lighter DEX.',
+    title: 'MetaTrader 5 Trade Action',
+    subtitle: 'MT4 / MT5 Terminal Order',
+    description: 'Dispatches market execution, limit, or stop orders directly to MetaTrader terminals.',
     icon: Flame,
-    defaultLabel: 'Lighter: Market Buy ETH-PERP',
-    color: 'text-orange-500 bg-orange-500/10 border-orange-500/20',
-    badgeColor: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/30',
-    presets: ['Lighter Market Buy', 'Lighter Limit Bid', 'Cancel All Open Orders', 'Rebalance Liquidity'],
+    defaultLabel: 'MT5: Market Buy 1.00 Lot EUR/USD',
+    color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
+    badgeColor: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
+    presets: ['Market Buy 1.00 Lot EUR/USD', 'Limit Bid 0.50 Lot GBP/USD', 'Close All Open FX Orders', 'Set SL to Break-Even'],
   },
   {
     kind: 'hyperliquid',
-    title: 'Hyperliquid Perp Action',
-    subtitle: 'Perpetuals DEX Order',
-    description: 'Executes perpetual futures orders, adjusts leverage, and manages margin positions on Hyperliquid.',
+    title: 'cTrader / FIX API Action',
+    subtitle: 'Institutional ECN Execution',
+    description: 'Executes ultra-low latency orders via cTrader Open API or institutional FIX 4.4 protocol.',
     icon: Zap,
-    defaultLabel: 'Hyperliquid: Open 5x Long',
-    color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
-    badgeColor: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
-    presets: ['Open Long 5x', 'Close 50% Position', 'Set Stop-Loss Order', 'Market Take-Profit'],
+    defaultLabel: 'cTrader: ECN Market Fill GBP/USD',
+    color: 'text-teal-500 bg-teal-500/10 border-teal-500/20',
+    badgeColor: 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/30',
+    presets: ['ECN Market Fill', 'Dynamic Trailing Stop (15 pips)', 'Scale Out 50% Position', 'FIX 4.4 IOC Order'],
   },
   {
     kind: 'backpack',
-    title: 'Backpack Spot Action',
-    subtitle: 'Exchange Spot Execution',
-    description: 'Executes spot order routing, token swaps, and deposit/withdrawal transfers on Backpack.',
+    title: 'Forex Broker Order Router',
+    subtitle: 'Multi-Broker Best Execution',
+    description: 'Routes spot forex trades to the broker offering the lowest spread (OANDA, Pepperstone, IC Markets).',
     icon: Briefcase,
-    defaultLabel: 'Backpack: Spot Swap USDC -> SOL',
-    color: 'text-rose-500 bg-rose-500/10 border-rose-500/20',
-    badgeColor: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30',
-    presets: ['Spot Buy SOL', 'Take Profit 100%', 'Transfer to Vault', 'DCA Order'],
+    defaultLabel: 'Broker Router: Best Spread Fill',
+    color: 'text-indigo-500 bg-indigo-500/10 border-indigo-500/20',
+    badgeColor: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/30',
+    presets: ['OANDA Spot Order', 'IC Markets ECN Routing', 'Pepperstone Razor Execution', 'Swap-Free Rollover Routing'],
   },
   {
     kind: 'trade',
-    title: 'Universal Swap / Trade',
-    subtitle: 'Cross-DEX Smart Router',
-    description: 'Dispatches optimal trades across DEX aggregators with slippage protection and optimal routing.',
+    title: 'FX Risk & Position Manager',
+    subtitle: 'Automated Equity Protection',
+    description: 'Manages account risk: trail stop losses, hedge currency exposure, or emergency liquidate before news.',
     icon: Play,
-    defaultLabel: 'Execute DEX Swap Router',
+    defaultLabel: 'Move SL to Break-Even (+10 Pips)',
     color: 'text-purple-500 bg-purple-500/10 border-purple-500/20',
     badgeColor: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30',
-    presets: ['Market Swap 1k USDC', 'Smart Rebalance', 'TWAP Order Execution', 'Emergency Unwind'],
+    presets: ['Move SL to Break-Even', 'Hedge EUR/USD Exposure', 'Emergency Close All Trades', 'Lock-in 50% Profits'],
   },
   {
     kind: 'notification',
-    title: 'Dispatch Alert',
-    subtitle: 'Telegram, Discord & Webhook',
-    description: 'Sends instant execution receipts, PnL updates, and failure notifications to external channels.',
+    title: 'Forex Signal / Alert',
+    subtitle: 'Telegram, Discord & SMS Alerts',
+    description: 'Broadcasts live forex signals, order execution receipts, and margin warnings to external channels.',
     icon: Bell,
-    defaultLabel: 'Send Execution Webhook Alert',
-    color: 'text-indigo-500 bg-indigo-500/10 border-indigo-500/20',
-    badgeColor: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/30',
-    presets: ['Telegram Alert', 'Discord Webhook', 'Slack Notification', 'Console Log'],
+    defaultLabel: 'Send Telegram FX Signal',
+    color: 'text-blue-500 bg-blue-500/10 border-blue-500/20',
+    badgeColor: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30',
+    presets: ['Telegram FX VIP Signal', 'Discord Trading Webhook', 'SMS Pip Alert', 'Email Daily PnL Summary'],
   },
 ]
 
@@ -120,15 +120,15 @@ export function ActionSheet({ onAddAction, triggerElement }: ActionSheetProps) {
   const [open, setOpen] = useState(false)
   const [selectedKind, setSelectedKind] = useState<ActionKind>('lighter')
   const [customLabel, setCustomLabel] = useState('')
-  const [selectedPreset, setSelectedPreset] = useState<string>('Lighter Market Buy')
+  const [selectedPreset, setSelectedPreset] = useState<string>('Market Buy 1.00 Lot EUR/USD')
 
-  // Lighter Action specific parameter states
-  const [lighterOrderType, setLighterOrderType] = useState<'market' | 'limit' | 'cancel' | 'liquidity'>('market')
-  const [lighterPair, setLighterPair] = useState('ETH-PERP')
+  // Lighter/MT5 Action specific parameter states
+  const [lighterOrderType, setLighterOrderType] = useState<'market' | 'limit' | 'stop' | 'cancel' | 'liquidity'>('market')
+  const [lighterPair, setLighterPair] = useState('EUR/USD')
   const [lighterSide, setLighterSide] = useState<'buy' | 'sell'>('buy')
-  const [lighterAmount, setLighterAmount] = useState('0.5 ETH')
-  const [lighterPrice, setLighterPrice] = useState('2,650')
-  const [lighterSlippage, setLighterSlippage] = useState('0.5%')
+  const [lighterAmount, setLighterAmount] = useState('1.00 Lot')
+  const [lighterPrice, setLighterPrice] = useState('1.09200')
+  const [lighterSlippage, setLighterSlippage] = useState('0.5 pips')
 
   const activeAction = ACTION_OPTIONS.find((a) => a.kind === selectedKind) ?? ACTION_OPTIONS[0]
 
@@ -147,23 +147,22 @@ export function ActionSheet({ onAddAction, triggerElement }: ActionSheetProps) {
       if (preset.includes('Market Buy')) {
         setLighterOrderType('market')
         setLighterSide('buy')
-        setLighterAmount('0.5 ETH')
-        setLighterPair('ETH-PERP')
-        setCustomLabel('Lighter: Market Buy ETH-PERP')
+        setLighterAmount('1.00 Lot')
+        setLighterPair('EUR/USD')
+        setCustomLabel('MT5: Market Buy 1.00 Lot EUR/USD')
       } else if (preset.includes('Limit Bid')) {
         setLighterOrderType('limit')
         setLighterSide('buy')
-        setLighterAmount('1.0 ETH')
-        setLighterPrice('2,650')
-        setLighterPair('ETH-PERP')
-        setCustomLabel('Lighter: Limit Bid $2,650')
-      } else if (preset.includes('Cancel')) {
+        setLighterAmount('0.50 Lot')
+        setLighterPrice('1.28500')
+        setLighterPair('GBP/USD')
+        setCustomLabel('MT5: Limit Bid 0.50 Lot GBP/USD')
+      } else if (preset.includes('Close All')) {
         setLighterOrderType('cancel')
-        setCustomLabel('Lighter: Cancel All Open Orders')
-      } else if (preset.includes('Liquidity')) {
-        setLighterOrderType('liquidity')
-        setLighterAmount('2,000 USDC')
-        setCustomLabel('Lighter: Rebalance Liquidity Pool')
+        setCustomLabel('MT5: Close All Open FX Orders')
+      } else if (preset.includes('Break-Even')) {
+        setLighterOrderType('limit')
+        setCustomLabel('MT5: Set SL to Break-Even')
       } else {
         setCustomLabel(`${activeAction.title}: ${preset}`)
       }
@@ -177,12 +176,12 @@ export function ActionSheet({ onAddAction, triggerElement }: ActionSheetProps) {
       const isBuy = lighterSide === 'buy'
       const sideText = isBuy ? 'Buy' : 'Sell'
       const generatedLabel = lighterOrderType === 'cancel'
-        ? `Lighter: Cancel ${lighterPair} Orders`
-        : `Lighter: ${lighterOrderType.toUpperCase()} ${sideText} ${lighterPair}`
+        ? `MT5: Close ${lighterPair} Orders`
+        : `MT5: ${lighterOrderType.toUpperCase()} ${sideText} ${lighterPair}`
 
       const finalLabel = customLabel.trim() || generatedLabel
       const subtitle = lighterOrderType === 'limit'
-        ? `Order: ${lighterSide.toUpperCase()} ${lighterAmount} @ $${lighterPrice}`
+        ? `Order: ${lighterSide.toUpperCase()} ${lighterAmount} @ ${lighterPrice}`
         : `Order: ${lighterSide.toUpperCase()} ${lighterAmount} • Slippage ${lighterSlippage}`
 
       onAddAction(selectedKind, finalLabel, subtitle, {
@@ -202,12 +201,12 @@ export function ActionSheet({ onAddAction, triggerElement }: ActionSheetProps) {
 
   const handleQuickAdd = (action: ActionDefinition) => {
     if (action.kind === 'lighter') {
-      onAddAction(action.kind, 'Lighter: Market Buy ETH-PERP', 'Order: BUY 0.5 ETH • Slippage 0.5%', {
+      onAddAction(action.kind, 'MT5: Market Buy 1.00 Lot EUR/USD', 'Order: BUY 1.00 Lot • Slippage 0.5 pips', {
         actionType: 'market',
-        pair: 'ETH-PERP',
+        pair: 'EUR/USD',
         side: 'buy',
-        amount: '0.5 ETH',
-        slippage: '0.5%',
+        amount: '1.00 Lot',
+        slippage: '0.5 pips',
       })
     } else {
       onAddAction(action.kind, action.defaultLabel, action.description)
@@ -346,16 +345,16 @@ export function ActionSheet({ onAddAction, triggerElement }: ActionSheetProps) {
               </div>
             </div>
 
-            {/* Lighter Action Specific Parameter Form */}
+            {/* MetaTrader 5 Action Specific Parameter Form */}
             {selectedKind === 'lighter' && (
-              <div className="space-y-3.5 rounded-xl border border-orange-500/20 bg-orange-500/5 p-3.5 mt-2">
-                <div className="flex items-center justify-between pb-1.5 border-b border-orange-500/20">
-                  <div className="flex items-center gap-1.5 text-xs font-semibold text-orange-600 dark:text-orange-400">
-                    <Flame className="h-4 w-4" />
-                    <span>Lighter DEX Execution Parameters</span>
+              <div className="space-y-3.5 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3.5 mt-2">
+                <div className="flex items-center justify-between pb-1.5 border-b border-emerald-500/20">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                    <Zap className="h-4 w-4" />
+                    <span>MetaTrader 5 Order Parameters</span>
                   </div>
-                  <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
-                    Order Config
+                  <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    Terminal Config
                   </span>
                 </div>
 
@@ -365,14 +364,14 @@ export function ActionSheet({ onAddAction, triggerElement }: ActionSheetProps) {
                     Action Type:
                   </label>
                   <div className="grid grid-cols-4 gap-1.5">
-                    {(['market', 'limit', 'cancel', 'liquidity'] as const).map((type) => (
+                    {(['market', 'limit', 'stop', 'close'] as const).map((type) => (
                       <button
                         key={type}
                         type="button"
-                        onClick={() => setLighterOrderType(type)}
+                        onClick={() => setLighterOrderType(type === 'close' ? 'cancel' : type)}
                         className={`text-[11px] py-1 rounded-md border font-medium capitalize transition-all cursor-pointer ${
-                          lighterOrderType === type
-                            ? 'bg-orange-500 text-white border-orange-600 shadow-xs'
+                          (lighterOrderType === type || (type === 'close' && lighterOrderType === 'cancel'))
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-xs'
                             : 'bg-card text-muted-foreground hover:text-foreground border-border'
                         }`}
                       >
@@ -387,28 +386,28 @@ export function ActionSheet({ onAddAction, triggerElement }: ActionSheetProps) {
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-medium text-foreground flex items-center gap-1">
                       <Coins className="h-3.5 w-3.5 text-muted-foreground" />
-                      <span>Lighter Market / Pair</span>
+                      <span>Currency Pair / Symbol</span>
                     </label>
-                    <span className="text-[10px] text-muted-foreground">Orderbook contract</span>
+                    <span className="text-[10px] text-muted-foreground">Forex Symbol</span>
                   </div>
                   <input
                     type="text"
                     value={lighterPair}
                     onChange={(e) => setLighterPair(e.target.value)}
-                    placeholder="ETH-PERP"
-                    className="w-full h-8 px-3 rounded-lg border border-border bg-card text-foreground text-xs font-mono placeholder:text-muted-foreground focus:outline-none focus:border-orange-500 transition-colors"
+                    placeholder="EUR/USD"
+                    className="w-full h-8 px-3 rounded-lg border border-border bg-card text-foreground text-xs font-mono placeholder:text-muted-foreground focus:outline-none focus:border-emerald-500 transition-colors"
                   />
                   {/* Quick Pair Selector */}
                   <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                     <span className="text-[10px] text-muted-foreground mr-0.5">Quick:</span>
-                    {['ETH-PERP', 'WBTC-PERP', 'SOL-PERP', 'USDC-PERP'].map((pair) => (
+                    {['EUR/USD', 'GBP/USD', 'USD/JPY', 'USD/CHF', 'AUD/USD', 'USD/CAD', 'XAU/USD'].map((pair) => (
                       <button
                         key={pair}
                         type="button"
                         onClick={() => setLighterPair(pair)}
                         className={`text-[11px] px-2 py-0.5 rounded border transition-colors cursor-pointer ${
                           lighterPair === pair
-                            ? 'bg-orange-500 text-white border-orange-600 font-medium'
+                            ? 'bg-emerald-600 text-white border-emerald-700 font-medium'
                             : 'bg-background hover:bg-muted text-foreground border-border'
                         }`}
                       >
@@ -419,7 +418,7 @@ export function ActionSheet({ onAddAction, triggerElement }: ActionSheetProps) {
                 </div>
 
                 {/* 3. Order Side (Buy / Sell) */}
-                {lighterOrderType !== 'cancel' && lighterOrderType !== 'liquidity' && (
+                {lighterOrderType !== 'cancel' && (
                   <div className="space-y-1.5">
                     <label className="text-xs font-medium text-foreground">
                       Execution Side:
@@ -453,19 +452,33 @@ export function ActionSheet({ onAddAction, triggerElement }: ActionSheetProps) {
                   </div>
                 )}
 
-                {/* 4. Order Size & Amount */}
+                {/* 4. Order Size & Lot Amount */}
                 {lighterOrderType !== 'cancel' && (
                   <div className="grid grid-cols-12 gap-2">
                     <div className={lighterOrderType === 'limit' ? 'col-span-6 space-y-1.5' : 'col-span-12 space-y-1.5'}>
-                      <label className="text-xs font-medium text-foreground">
-                        Order Amount / Size:
-                      </label>
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-medium text-foreground">
+                          Lot Size:
+                        </label>
+                        <div className="flex gap-1">
+                          {['0.01 Lot', '0.10 Lot', '1.00 Lot'].map((lot) => (
+                            <button
+                              key={lot}
+                              type="button"
+                              onClick={() => setLighterAmount(lot)}
+                              className="text-[10px] px-1.5 py-0.2 rounded bg-muted hover:bg-muted/80 text-foreground cursor-pointer"
+                            >
+                              {lot.split(' ')[0]}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                       <input
                         type="text"
                         value={lighterAmount}
                         onChange={(e) => setLighterAmount(e.target.value)}
-                        placeholder="0.5 ETH"
-                        className="w-full h-8 px-3 rounded-lg border border-border bg-card text-foreground text-xs font-mono placeholder:text-muted-foreground focus:outline-none focus:border-orange-500 transition-colors"
+                        placeholder="1.00 Lot"
+                        className="w-full h-8 px-3 rounded-lg border border-border bg-card text-foreground text-xs font-mono placeholder:text-muted-foreground focus:outline-none focus:border-emerald-500 transition-colors"
                       />
                     </div>
 
@@ -473,14 +486,14 @@ export function ActionSheet({ onAddAction, triggerElement }: ActionSheetProps) {
                       <div className="col-span-6 space-y-1.5">
                         <label className="text-xs font-medium text-foreground flex items-center gap-1">
                           <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
-                          <span>Limit Price:</span>
+                          <span>Limit Rate:</span>
                         </label>
                         <input
                           type="text"
                           value={lighterPrice}
                           onChange={(e) => setLighterPrice(e.target.value)}
-                          placeholder="2,650"
-                          className="w-full h-8 px-3 rounded-lg border border-border bg-card text-foreground text-xs font-mono placeholder:text-muted-foreground focus:outline-none focus:border-orange-500 transition-colors"
+                          placeholder="1.09200"
+                          className="w-full h-8 px-3 rounded-lg border border-border bg-card text-foreground text-xs font-mono placeholder:text-muted-foreground focus:outline-none focus:border-emerald-500 transition-colors"
                         />
                       </div>
                     )}
@@ -493,9 +506,9 @@ export function ActionSheet({ onAddAction, triggerElement }: ActionSheetProps) {
                     <div className="flex items-center justify-between">
                       <label className="text-xs font-medium text-foreground flex items-center gap-1">
                         <Percent className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span>Max Slippage Tolerance</span>
+                        <span>Max Slippage (Pips)</span>
                       </label>
-                      <span className="text-[10px] text-muted-foreground">Protection</span>
+                      <span className="text-[10px] text-muted-foreground">Execution Guard</span>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -503,18 +516,18 @@ export function ActionSheet({ onAddAction, triggerElement }: ActionSheetProps) {
                         type="text"
                         value={lighterSlippage}
                         onChange={(e) => setLighterSlippage(e.target.value)}
-                        placeholder="0.5%"
-                        className="w-24 h-8 px-3 rounded-lg border border-border bg-card text-foreground text-xs font-mono placeholder:text-muted-foreground focus:outline-none focus:border-orange-500 transition-colors"
+                        placeholder="0.5 pips"
+                        className="w-24 h-8 px-3 rounded-lg border border-border bg-card text-foreground text-xs font-mono placeholder:text-muted-foreground focus:outline-none focus:border-emerald-500 transition-colors"
                       />
                       <div className="flex items-center gap-1.5">
-                        {['0.1%', '0.5%', '1.0%', '2.0%'].map((slip) => (
+                        {['0.2 pips', '0.5 pips', '1.0 pip', '2.0 pips'].map((slip) => (
                           <button
                             key={slip}
                             type="button"
                             onClick={() => setLighterSlippage(slip)}
                             className={`text-[11px] px-2 py-1 rounded border transition-colors cursor-pointer ${
                               lighterSlippage === slip
-                                ? 'bg-orange-500 text-white border-orange-600 font-medium'
+                                ? 'bg-emerald-600 text-white border-emerald-700 font-medium'
                                 : 'bg-background hover:bg-muted text-foreground border-border'
                             }`}
                           >
@@ -533,8 +546,8 @@ export function ActionSheet({ onAddAction, triggerElement }: ActionSheetProps) {
                   </div>
                   <div className="text-foreground text-xs font-medium leading-relaxed">
                     Dispatch{' '}
-                    <span className="text-orange-600 dark:text-orange-400 font-bold uppercase">
-                      Lighter {lighterOrderType}
+                    <span className="text-emerald-600 dark:text-emerald-400 font-bold uppercase">
+                      MT5 {lighterOrderType}
                     </span>{' '}
                     order on{' '}
                     <span className="font-mono font-bold text-foreground">
@@ -548,7 +561,7 @@ export function ActionSheet({ onAddAction, triggerElement }: ActionSheetProps) {
                         </span>{' '}
                         ({lighterSide.toUpperCase()})
                         {lighterOrderType === 'limit' && (
-                          <> at limit price <span className="font-mono font-bold">${lighterPrice}</span></>
+                          <> at limit price <span className="font-mono font-bold">{lighterPrice}</span></>
                         )}
                         {lighterOrderType === 'market' && (
                           <> with max <span className="font-mono">{lighterSlippage}</span> slippage</>
