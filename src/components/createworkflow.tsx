@@ -177,6 +177,17 @@ export const NODE_TYPES_LIST: NodeTypeItem[] = [
 
   // Intermediate AI & Logic nodes
   {
+    id: 'intermediate-smart-ict',
+    type: 'intermediate',
+    intermediateKind: 'smart-ict',
+    title: 'Smart ICT Engine',
+    category: 'AI / Intermediate',
+    description: 'Sub-canvas studio for FVG, Order Blocks, Liquidity Sweeps, MSS & OTE linked to compiled C++ logic',
+    icon: Flame,
+    colorClass: 'text-amber-500 bg-amber-500/10 border-amber-500/20',
+    badgeClass: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30',
+  },
+  {
     id: 'intermediate-gemini',
     type: 'intermediate',
     intermediateKind: 'gemini',

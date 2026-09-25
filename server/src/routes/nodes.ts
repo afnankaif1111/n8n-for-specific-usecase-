@@ -86,6 +86,14 @@ export const STANDARD_NODES = [
 
   // Intermediate AI & Logic Nodes
   {
+    nodeId: 'intermediate-ict',
+    title: 'Smart ICT Engine',
+    desc: 'Sub-canvas studio for FVG, Order Blocks, Liquidity Sweeps, MSS & OTE linked to compiled C++ logic',
+    type: 'intermediate',
+    credentialType: null,
+    category: 'AI / Intermediate',
+  },
+  {
     nodeId: 'intermediate-gemini',
     title: 'Google Gemini AI',
     desc: 'Multimodal AI reasoning on FX sentiment, macro releases & setup validation',

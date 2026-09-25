@@ -18,6 +18,7 @@ import {
   Check,
   Cpu,
   Layers,
+  Flame,
 } from 'lucide-react'
 import type { IntermediateKind } from '@/components/nodes/intermediate'
 
@@ -50,6 +51,34 @@ export interface IntermediateDefinition {
 }
 
 export const INTERMEDIATE_OPTIONS: IntermediateDefinition[] = [
+  {
+    kind: 'smart-ict',
+    title: 'Smart ICT Engine',
+    subtitle: 'Institutional FVG & OB Studio',
+    description: 'Sub-canvas studio for FVG, Order Blocks, Liquidity Sweeps, MSS & OTE linked to a compiled C++20 confluence engine.',
+    icon: Flame,
+    defaultLabel: 'Smart ICT Confluence Engine',
+    color: 'text-amber-500 bg-amber-500/10 border-amber-500/20',
+    badgeColor: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30',
+    defaultModel: 'C++20 Confluence SIMD',
+    availableModels: ['C++20 FastMath Engine', 'C++20 SIMD AVX-512', 'C++20 HFT Microsecond'],
+    credentialName: 'Compiler Engine (C++ Linker)',
+    defaultKey: 'libict_confluence.so',
+    presets: [
+      {
+        label: 'Institutional Liquidity & FVG Confluence',
+        prompt: 'Prioritize unmitigated Order Blocks, Fair Value Gaps >= 2.5 pips, and liquidity sweep confirmation.',
+      },
+      {
+        label: 'Silver Bullet 15m Scalping Setup',
+        prompt: 'Strict London & NY Killzone alignment with Market Structure Shift (MSS) displacement and FVG retest.',
+      },
+      {
+        label: 'Optimal Trade Entry (OTE 0.705) Matrix',
+        prompt: 'Demand deep discount retracement into 0.62-0.79 Fib zone before authorizing MT5 market order.',
+      },
+    ],
+  },
   {
     kind: 'gemini',
     title: 'Google Gemini AI',
