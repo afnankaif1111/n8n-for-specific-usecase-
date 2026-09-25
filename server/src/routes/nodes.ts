@@ -84,6 +84,32 @@ export const STANDARD_NODES = [
     category: 'Action',
   },
 
+  // Intermediate AI & Logic Nodes
+  {
+    nodeId: 'intermediate-gemini',
+    title: 'Google Gemini AI',
+    desc: 'Multimodal AI reasoning on FX sentiment, macro releases & setup validation',
+    type: 'intermediate',
+    credentialType: 'gemini_api_key',
+    category: 'AI / Intermediate',
+  },
+  {
+    nodeId: 'intermediate-chatgpt',
+    title: 'OpenAI ChatGPT',
+    desc: 'GPT-4o trade setup validation, lot sizing, and slippage guard rules',
+    type: 'intermediate',
+    credentialType: 'openai_api_key',
+    category: 'AI / Intermediate',
+  },
+  {
+    nodeId: 'intermediate-claude',
+    title: 'Anthropic Claude',
+    desc: 'Multi-timeframe price action analysis, support/resistance & risk/reward filter',
+    type: 'intermediate',
+    credentialType: 'anthropic_api_key',
+    category: 'AI / Intermediate',
+  },
+
   // Conditions & Notifications
   {
     nodeId: 'condition-filter',
@@ -166,7 +192,7 @@ nodeRouter.post('/', async (req: Request, res: Response): Promise<any> => {
       nodeId: z.string().min(1),
       title: z.string().min(1),
       desc: z.string().min(1),
-      type: z.enum(['trigger', 'action', 'condition', 'notification']),
+      type: z.enum(['trigger', 'action', 'condition', 'notification', 'intermediate']),
       credentialType: z.string().optional().nullable(),
       category: z.string().optional(),
     })

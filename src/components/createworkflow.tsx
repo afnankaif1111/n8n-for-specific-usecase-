@@ -18,8 +18,14 @@ import '@xyflow/react/dist/style.css'
 import { Button } from '@/components/ui/button'
 import { TriggerSheet } from '@/components/triggersheet'
 import { ActionSheet, type ActionKind } from '@/components/actionsheet'
+import { IntermediateSheet, type IntermediateConfig } from '@/components/intermediatesheet'
 import { triggerNodeTypes } from '@/components/nodes/triggers'
 import { actionNodeTypes } from '@/components/nodes/actions'
+import {
+  intermediateNodeTypes,
+  ConditionNode,
+  type IntermediateKind,
+} from '@/components/nodes/intermediate'
 import {
   TrendingUp,
   Clock,
@@ -32,10 +38,12 @@ import {
   RotateCcw,
   CheckCircle2,
   Save,
-  Plus,
   Database,
   Layers,
-  Code2
+  Code2,
+  Sparkles,
+  Bot,
+  Brain,
 } from 'lucide-react'
 
 // ==========================================
@@ -52,9 +60,9 @@ export interface Edge {
 }
 
 export type TriggerKind = 'price' | 'timer' | 'hyperliquid' | 'backpack' | 'lighter'
-export type { ActionKind }
+export type { ActionKind, IntermediateKind }
 
-export type NodeType = 'trigger' | 'action' | 'condition' | 'notification'
+export type NodeType = 'trigger' | 'action' | 'condition' | 'notification' | 'intermediate'
 
 export interface TriggerNodeData extends Record<string, unknown> {
   label: string
@@ -70,8 +78,9 @@ export interface TriggerNodeData extends Record<string, unknown> {
 
 export interface StandardNodeData extends Record<string, unknown> {
   label: string
-  nodeType: 'action' | 'condition' | 'notification'
+  nodeType: 'action' | 'condition' | 'notification' | 'intermediate'
   actionKind?: ActionKind
+  intermediateKind?: IntermediateKind
   subtitle?: string
   config?: Record<string, unknown>
   pair?: string
@@ -80,6 +89,12 @@ export interface StandardNodeData extends Record<string, unknown> {
   price?: string
   actionType?: string
   slippage?: string
+  model?: string
+  credentialTitle?: string
+  credentialKey?: string
+  promptTask?: string
+  temperature?: number | string
+  maxTokens?: number | string
 }
 
 export type WorkflowNodeData = TriggerNodeData | StandardNodeData
@@ -92,6 +107,7 @@ export interface NodeTypeItem {
   description: string
   kind?: TriggerKind
   actionKind?: ActionKind
+  intermediateKind?: IntermediateKind
   icon: typeof Zap
   colorClass: string
   badgeClass: string
@@ -159,6 +175,51 @@ export const NODE_TYPES_LIST: NodeTypeItem[] = [
     badgeClass: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/30',
   },
 
+  // Intermediate AI & Logic nodes
+  {
+    id: 'intermediate-gemini',
+    type: 'intermediate',
+    intermediateKind: 'gemini',
+    title: 'Google Gemini AI',
+    category: 'AI / Intermediate',
+    description: 'High-speed multimodal reasoning on FX sentiment, macro releases & setup validation',
+    icon: Sparkles,
+    colorClass: 'text-indigo-500 bg-indigo-500/10 border-indigo-500/20',
+    badgeClass: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/30',
+  },
+  {
+    id: 'intermediate-chatgpt',
+    type: 'intermediate',
+    intermediateKind: 'chatgpt',
+    title: 'OpenAI ChatGPT',
+    category: 'AI / Intermediate',
+    description: 'GPT-4o trade setup validation, lot sizing, and slippage guard rules',
+    icon: Bot,
+    colorClass: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
+    badgeClass: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
+  },
+  {
+    id: 'intermediate-claude',
+    type: 'intermediate',
+    intermediateKind: 'claude',
+    title: 'Anthropic Claude',
+    category: 'AI / Intermediate',
+    description: 'Multi-timeframe price action analysis, support/resistance & risk/reward filter',
+    icon: Brain,
+    colorClass: 'text-amber-500 bg-amber-500/10 border-amber-500/20',
+    badgeClass: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30',
+  },
+  {
+    id: 'condition-filter',
+    type: 'condition',
+    title: 'Risk & Margin Check',
+    category: 'Logic',
+    description: 'Branching logic evaluating free margin, spread, and ADR volatility',
+    icon: GitBranch,
+    colorClass: 'text-cyan-500 bg-cyan-500/10 border-cyan-500/20',
+    badgeClass: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/30',
+  },
+
   // Action nodes
   {
     id: 'action-lighter',
@@ -205,16 +266,6 @@ export const NODE_TYPES_LIST: NodeTypeItem[] = [
     badgeClass: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30',
   },
   {
-    id: 'condition-filter',
-    type: 'condition',
-    title: 'Risk & Margin Check',
-    category: 'Logic',
-    description: 'Branching logic evaluating free margin, spread, and ADR volatility',
-    icon: GitBranch,
-    colorClass: 'text-cyan-500 bg-cyan-500/10 border-cyan-500/20',
-    badgeClass: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/30',
-  },
-  {
     id: 'notification-alert',
     type: 'notification',
     title: 'Forex Signal / Alert',
@@ -239,6 +290,8 @@ function GenericWorkflowNode(props: NodeProps) {
         return { icon: Play, title: 'Action', color: 'text-purple-500 border-purple-500/30 bg-purple-500/10' }
       case 'condition':
         return { icon: GitBranch, title: 'Condition', color: 'text-cyan-500 border-cyan-500/30 bg-cyan-500/10' }
+      case 'intermediate':
+        return { icon: Sparkles, title: 'Intermediate AI', color: 'text-indigo-500 border-indigo-500/30 bg-indigo-500/10' }
       case 'notification':
         return { icon: Bell, title: 'Notification', color: 'text-indigo-500 border-indigo-500/30 bg-indigo-500/10' }
       default:
@@ -249,11 +302,13 @@ function GenericWorkflowNode(props: NodeProps) {
   const IconComponent = meta.icon
 
   return (
-    <div className="min-w-[200px] rounded-xl border-2 border-border bg-card p-3 shadow-md transition-all hover:border-primary/50">
+    <div className="min-w-[200px] rounded-xl border-2 border-border bg-card p-3 shadow-md transition-all hover:border-primary/50 text-left">
+      {/* Target Handle strictly on the LEFT side */}
       <Handle
         type="target"
-        position={Position.Top}
-        className="!h-3 !w-3 !rounded-full !bg-muted-foreground !border-2 !border-background"
+        position={Position.Left}
+        id="target-left"
+        className="!h-3 !w-3 !rounded-full !bg-muted-foreground !border-2 !border-background hover:scale-125 transition-transform"
       />
 
       <div className="flex items-center gap-2 pb-2 border-b border-border/60">
@@ -272,10 +327,12 @@ function GenericWorkflowNode(props: NodeProps) {
         </div>
       )}
 
+      {/* Source Handle strictly on the RIGHT side */}
       <Handle
         type="source"
-        position={Position.Bottom}
-        className="!h-3 !w-3 !rounded-full !bg-primary !border-2 !border-background"
+        position={Position.Right}
+        id="source-right"
+        className="!h-3 !w-3 !rounded-full !bg-primary !border-2 !border-background hover:scale-125 transition-transform"
       />
     </div>
   )
@@ -283,8 +340,9 @@ function GenericWorkflowNode(props: NodeProps) {
 
 const nodeTypes = {
   ...triggerNodeTypes,
+  ...intermediateNodeTypes,
   ...actionNodeTypes,
-  condition: GenericWorkflowNode,
+  condition: ConditionNode,
   notification: GenericWorkflowNode,
 }
 
@@ -292,7 +350,7 @@ const nodeTypes = {
 // Storage and Persistence Helpers
 // ==========================================
 
-const WORKFLOW_STORAGE_KEY = 'forex_workflow_state_v1'
+const WORKFLOW_STORAGE_KEY = 'forex_workflow_state_v2'
 
 interface StoredWorkflowData {
   nodes: Node[]
@@ -305,7 +363,7 @@ const defaultInitialNodes: Node[] = [
   {
     id: 'trigger-1',
     type: 'trigger',
-    position: { x: 80, y: 40 },
+    position: { x: 40, y: 70 },
     data: {
       label: 'EUR/USD > 1.0920 Breakout',
       nodeType: 'trigger',
@@ -320,7 +378,7 @@ const defaultInitialNodes: Node[] = [
   {
     id: 'trigger-2',
     type: 'trigger',
-    position: { x: 340, y: 40 },
+    position: { x: 40, y: 310 },
     data: {
       label: 'London / NY Overlap Session',
       nodeType: 'trigger',
@@ -329,19 +387,41 @@ const defaultInitialNodes: Node[] = [
     },
   },
   {
-    id: 'condition-1',
-    type: 'condition',
-    position: { x: 210, y: 190 },
+    id: 'intermediate-gemini-1',
+    type: 'intermediate',
+    position: { x: 380, y: 50 },
     data: {
-      label: 'Risk Check (Spread < 1.2 Pips)',
-      nodeType: 'condition',
-      subtitle: 'Free Margin > $2,000 & Low Spread',
+      label: 'Gemini: Market Sentiment Reasoner',
+      nodeType: 'intermediate',
+      intermediateKind: 'gemini',
+      model: 'gemini-2.0-flash',
+      credentialTitle: 'Google Gemini API Key',
+      credentialKey: 'AIzaSyBv9xK72m8L10qPz-demo',
+      promptTask: 'Analyze FX volatility, economic sentiment & validate trade setup',
+      temperature: 0.2,
+      subtitle: 'gemini-2.0-flash • Side Handles',
+    },
+  },
+  {
+    id: 'intermediate-claude-1',
+    type: 'intermediate',
+    position: { x: 380, y: 300 },
+    data: {
+      label: 'Claude: Risk & Trend Evaluator',
+      nodeType: 'intermediate',
+      intermediateKind: 'claude',
+      model: 'claude-3-5-sonnet',
+      credentialTitle: 'Anthropic API Key',
+      credentialKey: 'sk-ant-api03-x88NmKwL20-demo',
+      promptTask: 'Multi-timeframe trend confirmation & institutional risk filter',
+      maxTokens: 2048,
+      subtitle: 'claude-3-5-sonnet • Side Handles',
     },
   },
   {
     id: 'action-1',
     type: 'action',
-    position: { x: 210, y: 320 },
+    position: { x: 740, y: 175 },
     data: {
       label: 'MT5: Market Buy 1.00 Lot EUR/USD',
       nodeType: 'action',
@@ -356,9 +436,10 @@ const defaultInitialNodes: Node[] = [
 ]
 
 const defaultInitialEdges: Edge[] = [
-  { id: 'edge-1', source: 'trigger-1', dest: 'condition-1' },
-  { id: 'edge-2', source: 'trigger-2', dest: 'condition-1' },
-  { id: 'edge-3', source: 'condition-1', dest: 'action-1' },
+  { id: 'edge-1', source: 'trigger-1', dest: 'intermediate-gemini-1' },
+  { id: 'edge-2', source: 'trigger-2', dest: 'intermediate-claude-1' },
+  { id: 'edge-3', source: 'intermediate-gemini-1', dest: 'action-1' },
+  { id: 'edge-4', source: 'intermediate-claude-1', dest: 'action-1' },
 ]
 
 function getStoredWorkflow(): StoredWorkflowData | null {
@@ -550,6 +631,45 @@ export function CreateWorkflow({ isDark = true }: CreateWorkflowProps = {}) {
     [customEdges, setNodes]
   )
 
+  // Auto-save whenever an intermediate AI or condition node is added via IntermediateSheet
+  const handleAddIntermediateFromSheet = useCallback(
+    (
+      kind: IntermediateKind,
+      label: string,
+      subtitle?: string,
+      config?: IntermediateConfig
+    ) => {
+      const nextId = `intermediate_${kind}_${Date.now()}`
+
+      const newNode: Node = {
+        id: nextId,
+        type: 'intermediate',
+        position: {
+          x: 360 + Math.floor(Math.random() * 120),
+          y: 90 + Math.floor(Math.random() * 160),
+        },
+        data: {
+          label,
+          nodeType: 'intermediate',
+          intermediateKind: kind,
+          subtitle: subtitle || 'Intermediate AI Reasoning',
+          ...(config || {}),
+        },
+      }
+
+      setNodes((currentNodes) => {
+        const updatedNodes = [...currentNodes, newNode]
+        const time = storeWorkflow(updatedNodes, customEdges, `${kind} intermediate node added`)
+        if (time) {
+          setLastSavedTime(time)
+          setSaveStatus(`Intermediate "${label}" added & saved at ${time}`)
+        }
+        return updatedNodes
+      })
+    },
+    [customEdges, setNodes]
+  )
+
   // Manual save trigger
   const handleManualSave = useCallback(() => {
     const time = storeWorkflow(nodes, customEdges, 'Manual save')
@@ -582,7 +702,7 @@ export function CreateWorkflow({ isDark = true }: CreateWorkflowProps = {}) {
             </h2>
           </div>
           <p className="text-xs text-muted-foreground">
-            Connect Forex triggers (Rate, Session, MT5, Economic Calendar, Spread) with execution actions using custom edges.
+            Connect Forex triggers with intermediate AI reasoning nodes (Gemini, ChatGPT, Claude) and MT5/cTrader execution actions.
           </p>
         </div>
 
@@ -590,6 +710,9 @@ export function CreateWorkflow({ isDark = true }: CreateWorkflowProps = {}) {
         <div className="flex flex-wrap items-center gap-2">
           {/* Trigger Sheet Button */}
           <TriggerSheet onAddTrigger={handleAddTriggerFromSheet} />
+
+          {/* Intermediate AI & Logic Sheet Button */}
+          <IntermediateSheet onAddIntermediate={handleAddIntermediateFromSheet} />
 
           {/* Action Sheet Button */}
           <ActionSheet onAddAction={handleAddActionFromSheet} />
@@ -614,6 +737,14 @@ export function CreateWorkflow({ isDark = true }: CreateWorkflowProps = {}) {
             Reset
           </Button>
 
+          {/* Canvas State Stats */}
+          <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted text-xs font-medium text-muted-foreground border border-border">
+            <Database className="h-3.5 w-3.5 text-primary" />
+            <span>{nodes.length} Nodes</span>
+            <span>•</span>
+            <span>{customEdges.length} Edges</span>
+          </div>
+
           {/* Status Badge */}
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-medium">
             <CheckCircle2 className="h-3.5 w-3.5" />
@@ -622,165 +753,36 @@ export function CreateWorkflow({ isDark = true }: CreateWorkflowProps = {}) {
         </div>
       </div>
 
-      {/* Main Layout: Node Types List (Palette) + Flow Canvas */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Sidebar: Types of Nodes List */}
-        <div className="lg:col-span-4 space-y-3">
-          <div className="p-3.5 rounded-xl bg-card border border-border shadow-sm space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-border">
-              <div className="flex items-center gap-1.5">
-                <Layers className="h-4 w-4 text-primary" />
-                <h3 className="font-semibold text-sm">Types of Nodes</h3>
-              </div>
-              <span className="text-[11px] font-medium text-muted-foreground">
-                Click to add & save
-              </span>
-            </div>
-
-            {/* Trigger Nodes Section */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                <span>Trigger Nodes (5 Kinds)</span>
-                <TriggerSheet
-                  onAddTrigger={handleAddTriggerFromSheet}
-                  triggerElement={
-                    <button
-                      type="button"
-                      className="text-[10px] text-primary hover:underline font-medium cursor-pointer"
-                    >
-                      Open Sheet
-                    </button>
-                  }
-                />
-              </div>
-              <div className="space-y-1.5">
-                {NODE_TYPES_LIST.filter((n) => n.type === 'trigger').map((item) => {
-                  const Icon = item.icon
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => handleAddNodeFromList(item)}
-                      className="w-full flex items-start gap-2.5 p-2 rounded-lg border border-border bg-background hover:bg-muted/60 hover:border-primary/40 transition-all text-left group"
-                    >
-                      <div className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border ${item.colorClass}`}>
-                        <Icon className="h-3.5 w-3.5" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">
-                            {item.title}
-                          </span>
-                          <span className={`text-[9px] font-semibold px-1 rounded border ${item.badgeClass}`}>
-                            {item.kind}
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-muted-foreground line-clamp-1">
-                          {item.description}
-                        </p>
-                      </div>
-                      <Plus className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity mt-1" />
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Other Workflow Nodes Section */}
-            <div className="space-y-1.5 pt-2 border-t border-border">
-              <div className="flex items-center justify-between text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                <span>Actions & Logic (with MT5)</span>
-                <ActionSheet
-                  onAddAction={handleAddActionFromSheet}
-                  triggerElement={
-                    <button
-                      type="button"
-                      className="text-[10px] text-orange-600 dark:text-orange-400 hover:underline font-medium cursor-pointer"
-                    >
-                      Open Sheet
-                    </button>
-                  }
-                />
-              </div>
-              <div className="space-y-1.5">
-                {NODE_TYPES_LIST.filter((n) => n.type !== 'trigger').map((item) => {
-                  const Icon = item.icon
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => handleAddNodeFromList(item)}
-                      className="w-full flex items-start gap-2.5 p-2 rounded-lg border border-border bg-background hover:bg-muted/60 hover:border-primary/40 transition-all text-left group"
-                    >
-                      <div className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border ${item.colorClass}`}>
-                        <Icon className="h-3.5 w-3.5" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">
-                            {item.title}
-                          </span>
-                          <span className="text-[9px] font-medium text-muted-foreground">
-                            {item.category}
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-muted-foreground line-clamp-1">
-                          {item.description}
-                        </p>
-                      </div>
-                      <Plus className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity mt-1" />
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Real-time stats */}
-          <div className="flex items-center justify-between p-2.5 rounded-lg border border-border bg-card text-xs text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <Database className="h-3.5 w-3.5 text-primary" />
-              <span>Canvas State:</span>
-            </div>
-            <div className="flex items-center gap-2 font-medium text-foreground">
-              <span>{nodes.length} Nodes</span>
-              <span>•</span>
-              <span>{customEdges.length} Custom Edges</span>
-            </div>
-          </div>
+      {/* Main Flow Canvas Area - Full Width & Expanded Height */}
+      <div className="w-full space-y-2.5">
+        <div className="w-full h-[calc(100vh-210px)] min-h-[660px] rounded-xl border border-border bg-card overflow-hidden shadow-sm relative">
+          <ReactFlow
+            nodes={nodes}
+            edges={rfEdges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onRfEdgesChange}
+            onConnect={onConnect}
+            nodeTypes={nodeTypes}
+            colorMode={isDark ? 'dark' : 'light'}
+            fitView
+          >
+            <Controls className="!bg-card !border-border !fill-foreground [&>button]:!border-border [&>button]:!bg-card [&>button]:!text-foreground" />
+            <MiniMap
+              zoomable
+              pannable
+              className="!bg-card !border !border-border !rounded-md"
+              nodeColor={(n) => (n.type === 'trigger' ? 'var(--primary, #10b981)' : '#94a3b8')}
+              maskColor={isDark ? 'rgba(0, 0, 0, 0.6)' : 'rgba(0, 0, 0, 0.1)'}
+            />
+            <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
+          </ReactFlow>
         </div>
 
-        {/* Canvas Area */}
-        <div className="lg:col-span-8 space-y-3">
-          <div className="w-full h-[520px] rounded-xl border border-border bg-card overflow-hidden shadow-sm relative">
-            <ReactFlow
-              nodes={nodes}
-              edges={rfEdges}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onRfEdgesChange}
-              onConnect={onConnect}
-              nodeTypes={nodeTypes}
-              colorMode={isDark ? 'dark' : 'light'}
-              fitView
-            >
-              <Controls className="!bg-card !border-border !fill-foreground [&>button]:!border-border [&>button]:!bg-card [&>button]:!text-foreground" />
-              <MiniMap
-                zoomable
-                pannable
-                className="!bg-card !border !border-border !rounded-md"
-                nodeColor={(n) => (n.type === 'trigger' ? 'var(--primary, #6366f1)' : '#94a3b8')}
-                maskColor={isDark ? 'rgba(0, 0, 0, 0.6)' : 'rgba(0, 0, 0, 0.1)'}
-              />
-              <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
-            </ReactFlow>
-          </div>
-
-          <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
-            <span>
-              💡 Drag between node handles to create a custom <strong>Edge</strong> (persists with <code>source</code> &amp; <code>dest</code>).
-            </span>
-            {lastSavedTime && <span>Auto-saved at: {lastSavedTime}</span>}
-          </div>
+        <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
+          <span>
+            💡 Use the <strong>+ Add Forex Trigger</strong> and <strong>+ Add Forex Action</strong> buttons above to add nodes to the canvas. Drag between node handles to create custom edges.
+          </span>
+          {lastSavedTime && <span>Auto-saved at: {lastSavedTime}</span>}
         </div>
       </div>
 

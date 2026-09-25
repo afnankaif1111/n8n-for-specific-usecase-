@@ -33,7 +33,7 @@ const NodeDefinitionSchema = new Schema<INodeDefinition>(
     type: {
       type: String,
       required: true,
-      enum: ['trigger', 'action', 'condition', 'notification'],
+      enum: ['trigger', 'action', 'condition', 'notification', 'intermediate'],
       index: true,
     },
     credentialType: {
