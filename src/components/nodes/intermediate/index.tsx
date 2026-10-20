@@ -4,14 +4,16 @@ import { ChatGPTNode } from './ChatGPTNode'
 import { ClaudeNode } from './ClaudeNode'
 import { ConditionNode } from './ConditionNode'
 import { SmartICTNode } from './SmartICTNode'
+import { PositionSizeNode } from './PositionSizeNode'
 
 export * from './GeminiNode'
 export * from './ChatGPTNode'
 export * from './ClaudeNode'
 export * from './ConditionNode'
 export * from './SmartICTNode'
+export * from './PositionSizeNode'
 
-export type IntermediateKind = 'gemini' | 'chatgpt' | 'claude' | 'condition' | 'smart-ict' | 'ict'
+export type IntermediateKind = 'gemini' | 'chatgpt' | 'claude' | 'condition' | 'smart-ict' | 'ict' | 'position-size'
 
 /**
  * Unified intermediate node dispatcher that delegates rendering to the specific individual node component
@@ -24,6 +26,9 @@ export function IntermediateNodeDispatcher(props: NodeProps) {
     case 'smart-ict':
     case 'ict':
       return <SmartICTNode {...props} />
+    case 'position-size':
+    case 'sizing':
+      return <PositionSizeNode {...props} />
     case 'gemini':
     case 'google':
       return <GeminiNode {...props} />
@@ -51,6 +56,8 @@ export const intermediateNodeTypes = {
   'intermediate-ict': SmartICTNode,
   'smart-ict': SmartICTNode,
   ict: SmartICTNode,
+  'intermediate-position-size': PositionSizeNode,
+  'position-size': PositionSizeNode,
   'intermediate-gemini': GeminiNode,
   'intermediate-chatgpt': ChatGPTNode,
   'intermediate-claude': ClaudeNode,

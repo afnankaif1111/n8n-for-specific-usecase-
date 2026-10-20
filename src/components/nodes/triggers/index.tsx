@@ -4,12 +4,14 @@ import { TimerTriggerNode } from './TimerTriggerNode'
 import { HyperliquidTriggerNode } from './HyperliquidTriggerNode'
 import { BackpackTriggerNode } from './BackpackTriggerNode'
 import { LighterTriggerNode } from './LighterTriggerNode'
+import { TradingViewTriggerNode } from './TradingViewTriggerNode'
 
 export * from './PriceTriggerNode'
 export * from './TimerTriggerNode'
 export * from './HyperliquidTriggerNode'
 export * from './BackpackTriggerNode'
 export * from './LighterTriggerNode'
+export * from './TradingViewTriggerNode'
 
 /**
  * Unified trigger dispatcher that delegates rendering to the specific individual trigger node component
@@ -22,6 +24,8 @@ export function TriggerNodeDispatcher(props: NodeProps) {
       return <PriceTriggerNode {...props} />
     case 'timer':
       return <TimerTriggerNode {...props} />
+    case 'tradingview':
+      return <TradingViewTriggerNode {...props} />
     case 'mt5':
     case 'hyperliquid':
       return <HyperliquidTriggerNode {...props} />
@@ -41,6 +45,7 @@ export function TriggerNodeDispatcher(props: NodeProps) {
  */
 export const triggerNodeTypes = {
   trigger: TriggerNodeDispatcher,
+  'trigger-tradingview': TradingViewTriggerNode,
   'trigger-price': PriceTriggerNode,
   'trigger-timer': TimerTriggerNode,
   'trigger-mt5': HyperliquidTriggerNode,

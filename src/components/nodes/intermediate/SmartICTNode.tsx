@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Handle, Position, type NodeProps } from '@xyflow/react'
+import { Handle, Position, useReactFlow, type NodeProps } from '@xyflow/react'
 import {
   Flame,
   Cpu,
@@ -9,7 +9,8 @@ import {
 } from 'lucide-react'
 import { ICTStudioModal } from '@/components/ict/ICTStudioModal'
 import type { ICTStudioState, ConfluenceEvaluationResult } from '@/components/ict/types'
-import { evaluateConfluenceWithCpp, DEFAULT_CPP_CONFLUENCE_CODE } from '@/components/ict/cppCompiler'
+import { evaluateConfluenceWithCpp } from '@/components/ict/cppCompiler'
+import { createDefaultICTState } from '@/components/ict/defaults'
 
 export interface SmartICTNodeData extends Record<string, unknown> {
   label: string
@@ -26,57 +27,9 @@ export function SmartICTNode(props: NodeProps) {
 
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  // Default internal studio state
-  const [studioState, setStudioState] = useState<ICTStudioState>(() => {
-    return (
-      data.studioState || {
-        fvg: {
-          enabled: true,
-          direction: 'bullish_bisi',
-          timeframe: '15m',
-          minSizePips: 2.5,
-          unmitigatedOnly: true,
-          weight: 25,
-        },
-        orderBlock: {
-          enabled: true,
-          direction: 'bullish',
-          lookbackCandles: 20,
-          volumeMultiplier: 1.8,
-          requireBodyEngulf: true,
-          weight: 25,
-        },
-        liquiditySweep: {
-          enabled: true,
-          poolType: 'ssl',
-          sweepAsianRange: true,
-          sweepPreviousDayHighLow: true,
-          weight: 20,
-        },
-        mss: {
-          enabled: true,
-          requireBodyClose: true,
-          confirmDisplacement: true,
-          multiTimeframeAlign: true,
-          weight: 15,
-        },
-        ote: {
-          enabled: true,
-          fibZone: '0.705_sweet_spot',
-          targetDiscountZone: true,
-          weight: 10,
-        },
-        killzone: {
-          enabled: true,
-          activeSession: 'ny_am',
-          strictTimeFilter: true,
-          weight: 5,
-        },
-        cppSource: DEFAULT_CPP_CONFLUENCE_CODE,
-        minConfluenceThreshold: 75,
-      }
-    )
-  })
+  const { updateNodeData } = useReactFlow()
+
+  const [studioState, setStudioState] = useState<ICTStudioState>(() => data.studioState || createDefaultICTState())
 
   const [evaluation, setEvaluation] = useState<ConfluenceEvaluationResult>(() =>
     evaluateConfluenceWithCpp(studioState)
@@ -85,6 +38,8 @@ export function SmartICTNode(props: NodeProps) {
   const handleSaveStudio = (newState: ICTStudioState, newEval: ConfluenceEvaluationResult) => {
     setStudioState(newState)
     setEvaluation(newEval)
+    // Persist so saves/reloads and the workflow executor see the configured studio.
+    updateNodeData(props.id, { studioState: newState })
   }
 
   // Active concepts summary
@@ -159,7 +114,7 @@ export function SmartICTNode(props: NodeProps) {
                 <span>C++ Logic Output:</span>
               </span>
               <span className="font-mono font-bold text-[10px] text-emerald-600 dark:text-emerald-400">
-                {evaluation.shouldExecute ? `BUY (${evaluation.riskRewardRatio} RR)` : 'HOLD'}
+                {evaluation.shouldExecute ? `${evaluation.direction} (${evaluation.riskRewardRatio} RR)` : 'HOLD'}
               </span>
             </div>
 
@@ -182,7 +137,7 @@ export function SmartICTNode(props: NodeProps) {
           <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-0.5">
             <span className="flex items-center gap-1">
               <Zap className="h-3 w-3 text-amber-500" />
-              Compiled &amp; Linked
+              {evaluation.usedSampleData ? 'Preview on sample data' : 'Live candles'}
             </span>
             <span className="text-emerald-600 dark:text-emerald-400">
               Input: Left ➔ Output: Right

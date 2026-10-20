@@ -1,4 +1,5 @@
-import type { ICTStudioState, ConfluenceEvaluationResult } from './types'
+import type { Candle, ICTStudioState, ConfluenceEvaluationResult } from './types'
+import { analyzeICT, generateSampleCandles, normalizeCandles } from './engine'
 
 export const DEFAULT_CPP_CONFLUENCE_CODE = `/**
  * @file ict_confluence_engine.cpp
@@ -195,82 +196,43 @@ export function compileCppSource(sourceCode: string): CompilerOutput {
     }
   }
 
-  const log = `[x86_64-linux-gnu-g++ -std=c++20 -O3 -march=native -ffast-math -shared -fPIC]
-✓ Preprocessed AST tokens (0 warnings)
-✓ Vectorized SIMD register allocations (AVX-512)
-✓ Emitted optimized ELF binary: libict_confluence.so (3.4 KB)
-✓ Benchmark latency: ${latency} μs per evaluation tick
-Build finished at ${timestamp} in ${compTime}ms.`
+  const log = `[simulated build - C++ is not executed in the browser]
+✓ Source accepted (${sourceCode.split('\n').length} lines)
+✓ Live scoring runs on the TypeScript ICT engine (src/components/ict/engine.ts)
+  which implements the same FVG / OB / sweep / MSS / OTE / killzone model.
+Checked at ${timestamp} in ${compTime}ms.`
 
   return {
     success: true,
     compilerLog: log,
-    binaryTarget: 'libict_confluence.so (C++20 SIMD)',
+    binaryTarget: 'C++ reference spec (not executed)',
     compilationTimeMs: compTime,
     latencyBenchmarkUs: latency,
     binarySizeKb: 3.4,
   }
 }
 
+/**
+ * Resolve the candles an ICT evaluation should run on: pasted JSON from the studio
+ * if present and valid, otherwise deterministic synthetic sample data.
+ */
+export function resolveCandles(state: ICTStudioState): { candles: Candle[]; usedSampleData: boolean } {
+  if (state.candlesJson?.trim()) {
+    try {
+      const candles = normalizeCandles(JSON.parse(state.candlesJson))
+      if (candles.length) return { candles, usedSampleData: false }
+    } catch {
+      // fall through to sample data
+    }
+  }
+  return { candles: generateSampleCandles(), usedSampleData: true }
+}
+
+/** Evaluate the studio configuration with the ICT engine (the C++ source is the reference spec). */
 export function evaluateConfluenceWithCpp(
   state: ICTStudioState,
-  currentPrice = 1.09240
+  candles?: Candle[]
 ): ConfluenceEvaluationResult {
-  const triggered: string[] = []
-  let calculatedScore = 0
-
-  if (state.orderBlock.enabled) {
-    calculatedScore += state.orderBlock.weight
-    triggered.push(`Order Block (${state.orderBlock.direction})`)
-  }
-
-  if (state.fvg.enabled) {
-    calculatedScore += state.fvg.weight
-    triggered.push(`Fair Value Gap (${state.fvg.minSizePips}p BISI)`)
-  }
-
-  if (state.liquiditySweep.enabled) {
-    calculatedScore += state.liquiditySweep.weight
-    triggered.push(`Liquidity Sweep (${state.liquiditySweep.poolType.toUpperCase()})`)
-  }
-
-  if (state.mss.enabled) {
-    calculatedScore += state.mss.weight
-    triggered.push('Market Structure Shift (MSS)')
-  }
-
-  if (state.ote.enabled) {
-    calculatedScore += state.ote.weight
-    triggered.push('Optimal Trade Entry (0.705 Fib)')
-  }
-
-  if (state.killzone.enabled) {
-    calculatedScore += state.killzone.weight
-    triggered.push('Killzone Active (London/NY)')
-  }
-
-  const finalScore = Math.min(100, calculatedScore)
-  const shouldExecute = finalScore >= state.minConfluenceThreshold
-
-  const slDistance = 0.00180
-  const tpDistance = 0.00450
-  const entryPrice = currentPrice
-  const stopLoss = Number((currentPrice - slDistance).toFixed(5))
-  const takeProfit = Number((currentPrice + tpDistance).toFixed(5))
-
-  return {
-    confluenceScore: finalScore,
-    direction: shouldExecute ? 'BUY' : 'NEUTRAL',
-    shouldExecute,
-    entryPrice,
-    stopLoss,
-    takeProfit,
-    riskRewardRatio: '1:2.50',
-    executionLatencyUs: Number((0.32 + Math.random() * 0.1).toFixed(2)),
-    compiledAt: new Date().toLocaleTimeString(),
-    triggeredConcepts: triggered,
-    compilerLog: `C++20 SIMD Confluence Engine evaluated: Score ${finalScore}% (Threshold: ${state.minConfluenceThreshold}%) -> ${
-      shouldExecute ? 'ORDER AUTHORIZED' : 'HOLD / FILTERED'
-    }`,
-  }
+  const resolved = candles ? { candles, usedSampleData: false } : resolveCandles(state)
+  return { ...analyzeICT(resolved.candles, state), usedSampleData: resolved.usedSampleData }
 }

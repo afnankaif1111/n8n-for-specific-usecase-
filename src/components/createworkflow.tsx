@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ReactFlow,
   MiniMap,
@@ -18,6 +18,8 @@ import '@xyflow/react/dist/style.css'
 import { Button } from '@/components/ui/button'
 import { TriggerSheet } from '@/components/triggersheet'
 import { ActionSheet, type ActionKind } from '@/components/actionsheet'
+import { collapseAll } from '@/components/nodes/CollapsibleNode'
+import { RunPanel } from '@/components/RunPanel'
 import { IntermediateSheet, type IntermediateConfig } from '@/components/intermediatesheet'
 import { triggerNodeTypes } from '@/components/nodes/triggers'
 import { actionNodeTypes } from '@/components/nodes/actions'
@@ -59,7 +61,7 @@ export interface Edge {
   dest: string
 }
 
-export type TriggerKind = 'price' | 'timer' | 'hyperliquid' | 'backpack' | 'lighter'
+export type TriggerKind = 'tradingview' | 'price' | 'timer' | 'hyperliquid' | 'backpack' | 'lighter'
 export type { ActionKind, IntermediateKind }
 
 export type NodeType = 'trigger' | 'action' | 'condition' | 'notification' | 'intermediate'
@@ -349,13 +351,14 @@ function GenericWorkflowNode(props: NodeProps) {
   )
 }
 
-const nodeTypes = {
+// Nodes show only their title until clicked; selecting one expands it to its full settings.
+const nodeTypes = collapseAll({
   ...triggerNodeTypes,
   ...intermediateNodeTypes,
   ...actionNodeTypes,
   condition: ConditionNode,
   notification: GenericWorkflowNode,
-}
+})
 
 // ==========================================
 // Storage and Persistence Helpers
@@ -407,7 +410,7 @@ const defaultInitialNodes: Node[] = [
       intermediateKind: 'gemini',
       model: 'gemini-2.0-flash',
       credentialTitle: 'Google Gemini API Key',
-      credentialKey: 'AIzaSyBv9xK72m8L10qPz-demo',
+      credentialKey: '',
       promptTask: 'Analyze FX volatility, economic sentiment & validate trade setup',
       temperature: 0.2,
       subtitle: 'gemini-2.0-flash • Side Handles',
@@ -421,12 +424,12 @@ const defaultInitialNodes: Node[] = [
       label: 'Claude: Risk & Trend Evaluator',
       nodeType: 'intermediate',
       intermediateKind: 'claude',
-      model: 'claude-3-5-sonnet',
+      model: 'claude-sonnet-5-5',
       credentialTitle: 'Anthropic API Key',
-      credentialKey: 'sk-ant-api03-x88NmKwL20-demo',
+      credentialKey: '',
       promptTask: 'Multi-timeframe trend confirmation & institutional risk filter',
       maxTokens: 2048,
-      subtitle: 'claude-3-5-sonnet • Side Handles',
+      subtitle: 'claude-sonnet-5-5 • Side Handles',
     },
   },
   {
@@ -510,7 +513,10 @@ export function CreateWorkflow({ isDark = true }: CreateWorkflowProps = {}) {
   const savedWorkflow = getStoredWorkflow()
 
   const [nodes, setNodes, onNodesChange] = useNodesState(
-    savedWorkflow?.nodes?.length ? savedWorkflow.nodes : defaultInitialNodes
+    // Saved selection state is dropped so every node starts collapsed.
+    savedWorkflow?.nodes?.length
+      ? savedWorkflow.nodes.map((n) => ({ ...n, selected: false, dragging: false }))
+      : defaultInitialNodes
   )
 
   // Maintain our custom Edge[] interface state
@@ -526,6 +532,12 @@ export function CreateWorkflow({ isDark = true }: CreateWorkflowProps = {}) {
   )
 
   const [showJsonInspector, setShowJsonInspector] = useState(false)
+
+  // Debounced autosave so in-node edits (models, MCP servers, rules, ICT studio) are not lost on reload
+  useEffect(() => {
+    const timer = setTimeout(() => storeWorkflow(nodes, customEdges, 'Autosave'), 700)
+    return () => clearTimeout(timer)
+  }, [nodes, customEdges])
 
   // Synchronize React Flow edge representations
   const rfEdges = useMemo(() => toReactFlowEdges(customEdges), [customEdges])
@@ -763,6 +775,8 @@ export function CreateWorkflow({ isDark = true }: CreateWorkflowProps = {}) {
           </div>
         </div>
       </div>
+
+      <RunPanel nodes={nodes} edges={customEdges} />
 
       {/* Main Flow Canvas Area - Full Width & Expanded Height */}
       <div className="w-full space-y-2.5">

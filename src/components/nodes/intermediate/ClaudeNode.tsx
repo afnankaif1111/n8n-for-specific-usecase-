@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { Handle, Position, type NodeProps } from '@xyflow/react'
+import { useNodeField } from './useNodeField'
+import { McpPanel } from './McpPanel'
 import { Brain, Key, Check, ChevronDown, ChevronUp, Sliders } from 'lucide-react'
 
 export interface ClaudeNodeData extends Record<string, unknown> {
@@ -16,21 +18,23 @@ export interface ClaudeNodeData extends Record<string, unknown> {
 export function ClaudeNode(props: NodeProps) {
   const data = props.data as unknown as ClaudeNodeData
 
-  const [model, setModel] = useState<string>(data.model || 'claude-3-5-sonnet')
-  const [credentialKey, setCredentialKey] = useState<string>(data.credentialKey || 'sk-ant-api03-x88NmKwL20-demo')
+  const [model, setModel] = useNodeField<string>(props.id, 'model', data.model && !data.model.startsWith('claude-3') ? data.model : 'claude-sonnet-5-5')
+  const [credentialKey, setCredentialKey] = useNodeField<string>(props.id, 'credentialKey', data.credentialKey && !/demo/i.test(data.credentialKey) ? data.credentialKey : '')
   const [credentialTitle] = useState<string>(data.credentialTitle || 'Anthropic API Key')
   const [showConfig, setShowConfig] = useState(false)
-  const [promptTask, setPromptTask] = useState<string>(
+  const [promptTask, setPromptTask] = useNodeField<string>(
+    props.id,
+    'promptTask',
     data.promptTask || 'Assess multi-timeframe price action, support/resistance & execute risk filter'
   )
 
   const maskedKey =
     credentialKey.length > 8
       ? `${credentialKey.slice(0, 9)}••••••••${credentialKey.slice(-4)}`
-      : '••••••••••••'
+      : credentialKey ? '••••••••••••' : 'server env key'
 
   return (
-    <div className="min-w-[240px] max-w-[280px] rounded-xl border-2 border-amber-500/40 bg-card p-3 shadow-md hover:border-amber-500/80 transition-all text-left">
+    <div className={`min-w-[240px] ${showConfig ? 'max-w-[340px]' : 'max-w-[280px]'} rounded-xl border-2 border-amber-500/40 bg-card p-3 shadow-md hover:border-amber-500/80 transition-all text-left`}>
       {/* Target Handle strictly on the LEFT side */}
       <Handle
         type="target"
@@ -102,9 +106,9 @@ export function ClaudeNode(props: NodeProps) {
                 onChange={(e) => setModel(e.target.value)}
                 className="w-full text-xs rounded border border-border bg-background px-1.5 py-1 text-foreground"
               >
-                <option value="claude-3-5-sonnet">Claude 3.5 Sonnet</option>
-                <option value="claude-3-5-haiku">Claude 3.5 Haiku</option>
-                <option value="claude-3-opus">Claude 3 Opus</option>
+                <option value="claude-sonnet-5-5">Claude Sonnet 5.5</option>
+                <option value="claude-haiku-5-5">Claude Haiku 5.5</option>
+                <option value="claude-opus-5-5">Claude Opus 5.5</option>
               </select>
             </div>
 
@@ -117,7 +121,7 @@ export function ClaudeNode(props: NodeProps) {
                 value={credentialKey}
                 onChange={(e) => setCredentialKey(e.target.value)}
                 className="w-full text-xs rounded border border-border bg-background px-1.5 py-1 font-mono text-foreground"
-                placeholder="sk-ant-..."
+                placeholder="sk-ant-... (blank = server ANTHROPIC_API_KEY)"
               />
             </div>
 
@@ -137,6 +141,17 @@ export function ClaudeNode(props: NodeProps) {
           <div className="text-[10px] text-muted-foreground line-clamp-2 italic bg-muted/30 p-1.5 rounded border border-border/40">
             "{promptTask}"
           </div>
+        )}
+
+        {showConfig ? (
+          <McpPanel nodeId={props.id} data={data} />
+        ) : (
+          Array.isArray(data.mcpServers) &&
+          data.mcpServers.length > 0 && (
+            <div className="text-[10px] text-amber-600 dark:text-amber-400">
+              MCP: {data.mcpServers.length} server{data.mcpServers.length === 1 ? '' : 's'}
+            </div>
+          )
         )}
 
         <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-0.5">

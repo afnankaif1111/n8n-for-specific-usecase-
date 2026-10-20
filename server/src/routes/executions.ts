@@ -3,6 +3,9 @@ import { Execution } from '../models/Execution'
 import { Workflow } from '../models/Workflow'
 import { isDBConnected } from '../db'
 import { memoryStore } from '../memoryStore'
+import { saveExecution } from '../engine/persist'
+import { runWorkflow } from '../engine/executor'
+import { probeMcpServer } from '../engine/mcp'
 import { requireAuth, type AuthenticatedRequest } from '../middleware/auth'
 
 export const executionRouter = Router()
@@ -82,6 +85,20 @@ executionRouter.get('/:workflowId', async (req: AuthenticatedRequest, res: Respo
   }
 })
 
+// POST /api/executions/mcp/test  — connect to an MCP server and list its tools
+executionRouter.post('/mcp/test', async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+  try {
+    const cfg = req.body ?? {}
+    if (typeof cfg.name !== 'string' || !cfg.name.trim()) {
+      return res.status(400).json({ error: 'MCP server name is required' })
+    }
+    const tools = await probeMcpServer(cfg)
+    return res.json({ ok: true, tools })
+  } catch (error) {
+    return res.status(200).json({ ok: false, error: (error as Error).message })
+  }
+})
+
 // POST /api/executions/run/:workflowId
 executionRouter.post('/run/:workflowId', async (req: AuthenticatedRequest, res: Response): Promise<any> => {
   try {
@@ -113,89 +130,13 @@ executionRouter.post('/run/:workflowId', async (req: AuthenticatedRequest, res: 
     }
 
     const startTime = new Date()
-    const logs: Array<Record<string, unknown>> = []
-
-    logs.push({
-      timestamp: startTime.toISOString(),
-      step: 'init',
-      message: `Starting execution for workflow "${workflow.title}" (ID: ${workflow.id})`,
-    })
-
-    const nodeCount = Array.isArray(workflow.nodes) ? workflow.nodes.length : 0
-    const edgeCount = Array.isArray(workflow.edges) ? workflow.edges.length : 0
-
-    logs.push({
-      timestamp: new Date().toISOString(),
-      step: 'graph_validation',
-      message: `Workflow loaded with ${nodeCount} node(s) and ${edgeCount} edge(s)`,
-    })
-
-    // Simulate step evaluation through workflow nodes
-    if (Array.isArray(workflow.nodes)) {
-      for (const node of workflow.nodes as Array<any>) {
-        const nodeType = node?.type || node?.data?.nodeType || 'step'
-        const label = node?.data?.label || node?.id || 'Unknown Node'
-        const kind = node?.data?.kind || node?.data?.actionKind || ''
-
-        logs.push({
-          timestamp: new Date().toISOString(),
-          step: `node_${node?.id || 'item'}`,
-          message: `Evaluated [${nodeType.toUpperCase()}] ${label} ${kind ? `(${kind})` : ''}`,
-          status: 'OK',
-        })
-      }
-    }
-
+    const result = await runWorkflow(workflow)
     const endTime = new Date()
-    logs.push({
-      timestamp: endTime.toISOString(),
-      step: 'finish',
-      message: `Execution completed successfully in ${endTime.getTime() - startTime.getTime()}ms`,
-    })
+    const message =
+      result.status === 'SUCCESS' ? 'Workflow execution finished' : 'Workflow execution finished with errors'
 
-    if (isDBConnected()) {
-      const execution = await Execution.create({
-        workflowId: workflow.id,
-        status: 'SUCCESS',
-        log: logs,
-        startTime,
-        endTime,
-      })
-
-      return res.status(201).json({
-        message: 'Workflow execution finished successfully',
-        execution: {
-          id: execution._id.toString(),
-          workflowId: execution.workflowId,
-          status: execution.status,
-          startTime: execution.startTime,
-          endTime: execution.endTime,
-          durationMs: endTime.getTime() - startTime.getTime(),
-          log: execution.log,
-        },
-      })
-    } else {
-      const execution = memoryStore.createExecution({
-        workflowId: workflow.id,
-        status: 'SUCCESS',
-        log: logs,
-        startTime,
-        endTime,
-      })
-
-      return res.status(201).json({
-        message: 'Workflow execution finished successfully',
-        execution: {
-          id: execution.id,
-          workflowId: execution.workflowId,
-          status: execution.status,
-          startTime: execution.startTime,
-          endTime: execution.endTime,
-          durationMs: endTime.getTime() - startTime.getTime(),
-          log: execution.log,
-        },
-      })
-    }
+    const execution = await saveExecution(workflow.id, result, startTime, endTime)
+    return res.status(201).json({ message, execution })
   } catch (error) {
     return res.status(500).json({
       error: 'Failed to run workflow execution',

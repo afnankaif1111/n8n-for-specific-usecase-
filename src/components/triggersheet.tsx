@@ -22,6 +22,7 @@ import {
   Coins,
   ArrowUpRight,
   ArrowDownRight,
+  Webhook,
 } from 'lucide-react'
 import type { TriggerKind } from '@/components/createworkflow'
 
@@ -46,6 +47,17 @@ export interface TriggerDefinition {
 }
 
 export const TRIGGER_OPTIONS: TriggerDefinition[] = [
+  {
+    kind: 'tradingview',
+    title: 'TradingView Alert',
+    subtitle: 'Webhook from TradingView alerts',
+    description: 'Fires when a TradingView alert (indicator, strategy or Pine script) posts to this workflow’s webhook URL. Needs a paid TradingView plan.',
+    icon: Webhook,
+    defaultLabel: 'TradingView Alert Webhook',
+    color: 'text-sky-500 bg-sky-500/10 border-sky-500/20',
+    badgeColor: 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/30',
+    presets: ['Indicator / Pine alert()', 'Strategy order fills', 'Price crossing alert', 'Custom JSON payload'],
+  },
   {
     kind: 'price',
     title: 'Forex Rate Trigger',

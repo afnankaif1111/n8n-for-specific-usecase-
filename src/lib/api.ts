@@ -166,6 +166,13 @@ export const api = {
       return request<{ executions: Array<any> }>(`/executions/${workflowId}`)
     },
 
+    async testMcp(server: Record<string, unknown>) {
+      return request<{ ok: boolean; tools: Array<{ name: string; description?: string }>; error?: string }>(
+        '/executions/mcp/test',
+        { method: 'POST', body: JSON.stringify(server) }
+      )
+    },
+
     async run(workflowId: string) {
       return request<{ message: string; execution: any }>(`/executions/run/${workflowId}`, {
         method: 'POST',

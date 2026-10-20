@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { Handle, Position, type NodeProps } from '@xyflow/react'
+import { useNodeField } from './useNodeField'
+import { McpPanel } from './McpPanel'
 import { Sparkles, Key, Check, ChevronDown, ChevronUp, Bot } from 'lucide-react'
 
 export interface GeminiNodeData extends Record<string, unknown> {
@@ -16,21 +18,23 @@ export interface GeminiNodeData extends Record<string, unknown> {
 export function GeminiNode(props: NodeProps) {
   const data = props.data as unknown as GeminiNodeData
 
-  const [model, setModel] = useState<string>(data.model || 'gemini-2.0-flash')
-  const [credentialKey, setCredentialKey] = useState<string>(data.credentialKey || 'AIzaSyBv9xK72m8L10qPz-demo')
+  const [model, setModel] = useNodeField<string>(props.id, 'model', data.model || 'gemini-2.0-flash')
+  const [credentialKey, setCredentialKey] = useNodeField<string>(props.id, 'credentialKey', data.credentialKey && !/demo/i.test(data.credentialKey) ? data.credentialKey : '')
   const [credentialTitle] = useState<string>(data.credentialTitle || 'Google Gemini API Key')
   const [showConfig, setShowConfig] = useState(false)
-  const [promptTask, setPromptTask] = useState<string>(
+  const [promptTask, setPromptTask] = useNodeField<string>(
+    props.id,
+    'promptTask',
     data.promptTask || 'Analyze FX volatility, economic sentiment & validate trade setup'
   )
 
   const maskedKey =
     credentialKey.length > 8
       ? `${credentialKey.slice(0, 6)}••••••••${credentialKey.slice(-4)}`
-      : '••••••••••••'
+      : credentialKey ? '••••••••••••' : 'server env key'
 
   return (
-    <div className="min-w-[240px] max-w-[280px] rounded-xl border-2 border-indigo-500/40 bg-card p-3 shadow-md hover:border-indigo-500/80 transition-all text-left">
+    <div className={`min-w-[240px] ${showConfig ? 'max-w-[340px]' : 'max-w-[280px]'} rounded-xl border-2 border-indigo-500/40 bg-card p-3 shadow-md hover:border-indigo-500/80 transition-all text-left`}>
       {/* Target Handle strictly on the LEFT side */}
       <Handle
         type="target"
@@ -137,6 +141,17 @@ export function GeminiNode(props: NodeProps) {
           <div className="text-[10px] text-muted-foreground line-clamp-2 italic bg-muted/30 p-1.5 rounded border border-border/40">
             "{promptTask}"
           </div>
+        )}
+
+        {showConfig ? (
+          <McpPanel nodeId={props.id} data={data} />
+        ) : (
+          Array.isArray(data.mcpServers) &&
+          data.mcpServers.length > 0 && (
+            <div className="text-[10px] text-amber-600 dark:text-amber-400">
+              MCP: {data.mcpServers.length} server{data.mcpServers.length === 1 ? '' : 's'}
+            </div>
+          )
         )}
 
         <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-0.5">

@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { Handle, Position, type NodeProps } from '@xyflow/react'
+import { useNodeField } from './useNodeField'
+import { McpPanel } from './McpPanel'
 import { Bot, Key, Check, ChevronDown, ChevronUp, Cpu } from 'lucide-react'
 
 export interface ChatGPTNodeData extends Record<string, unknown> {
@@ -17,21 +19,23 @@ export interface ChatGPTNodeData extends Record<string, unknown> {
 export function ChatGPTNode(props: NodeProps) {
   const data = props.data as unknown as ChatGPTNodeData
 
-  const [model, setModel] = useState<string>(data.model || 'gpt-4o')
-  const [credentialKey, setCredentialKey] = useState<string>(data.credentialKey || 'sk-proj-a9Xk27LmPo81WqBv44demo')
+  const [model, setModel] = useNodeField<string>(props.id, 'model', data.model || 'gpt-4o')
+  const [credentialKey, setCredentialKey] = useNodeField<string>(props.id, 'credentialKey', data.credentialKey && !/demo/i.test(data.credentialKey) ? data.credentialKey : '')
   const [credentialTitle] = useState<string>(data.credentialTitle || 'OpenAI API Key')
   const [showConfig, setShowConfig] = useState(false)
-  const [promptTask, setPromptTask] = useState<string>(
+  const [promptTask, setPromptTask] = useNodeField<string>(
+    props.id,
+    'promptTask',
     data.promptTask || 'Cross-examine technical breakout with spread conditions & validate MT5 order'
   )
 
   const maskedKey =
     credentialKey.length > 8
       ? `${credentialKey.slice(0, 7)}••••••••${credentialKey.slice(-4)}`
-      : '••••••••••••'
+      : credentialKey ? '••••••••••••' : 'server env key'
 
   return (
-    <div className="min-w-[240px] max-w-[280px] rounded-xl border-2 border-emerald-500/40 bg-card p-3 shadow-md hover:border-emerald-500/80 transition-all text-left">
+    <div className={`min-w-[240px] ${showConfig ? 'max-w-[340px]' : 'max-w-[280px]'} rounded-xl border-2 border-emerald-500/40 bg-card p-3 shadow-md hover:border-emerald-500/80 transition-all text-left`}>
       {/* Target Handle strictly on the LEFT side */}
       <Handle
         type="target"
@@ -139,6 +143,17 @@ export function ChatGPTNode(props: NodeProps) {
           <div className="text-[10px] text-muted-foreground line-clamp-2 italic bg-muted/30 p-1.5 rounded border border-border/40">
             "{promptTask}"
           </div>
+        )}
+
+        {showConfig ? (
+          <McpPanel nodeId={props.id} data={data} />
+        ) : (
+          Array.isArray(data.mcpServers) &&
+          data.mcpServers.length > 0 && (
+            <div className="text-[10px] text-amber-600 dark:text-amber-400">
+              MCP: {data.mcpServers.length} server{data.mcpServers.length === 1 ? '' : 's'}
+            </div>
+          )
         )}
 
         <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-0.5">

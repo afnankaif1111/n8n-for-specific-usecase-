@@ -1,8 +1,19 @@
 export type ICTConceptType = 'fvg' | 'order_block' | 'liquidity_sweep' | 'mss' | 'ote' | 'killzone'
 
+export interface Candle {
+  /** Unix epoch in milliseconds */
+  time: number
+  open: number
+  high: number
+  low: number
+  close: number
+  volume?: number
+}
+
 export interface FVGState {
   enabled: boolean
-  direction: 'bullish_bisi' | 'bearish_sibi'
+  /** `auto` lets the engine score whichever side has a valid gap */
+  direction: 'auto' | 'bullish_bisi' | 'bearish_sibi'
   timeframe: string
   minSizePips: number
   unmitigatedOnly: boolean
@@ -11,7 +22,7 @@ export interface FVGState {
 
 export interface OrderBlockState {
   enabled: boolean
-  direction: 'bullish' | 'bearish'
+  direction: 'auto' | 'bullish' | 'bearish'
   lookbackCandles: number
   volumeMultiplier: number
   requireBodyEngulf: boolean
@@ -44,6 +55,7 @@ export interface OTEState {
 export interface KillzoneState {
   enabled: boolean
   activeSession: 'london_open' | 'ny_am' | 'ny_pm' | 'asian_range' | 'all'
+  /** When true, a trade is blocked outside the session no matter the score */
   strictTimeFilter: boolean
   weight: number
 }
@@ -57,6 +69,16 @@ export interface ICTStudioState {
   killzone: KillzoneState
   cppSource: string
   minConfluenceThreshold: number
+  /** Optional candles pasted into the studio (JSON). Used when no upstream node supplies data. */
+  candlesJson?: string
+}
+
+export interface ConceptSignal {
+  id: ICTConceptType
+  name: string
+  hit: boolean
+  weight: number
+  detail: string
 }
 
 export interface ConfluenceEvaluationResult {
@@ -67,8 +89,15 @@ export interface ConfluenceEvaluationResult {
   stopLoss: number
   takeProfit: number
   riskRewardRatio: string
-  executionLatencyUs: number // e.g. 0.34 microseconds
+  executionLatencyUs: number // measured wall-clock time of the evaluation
   compiledAt: string
   triggeredConcepts: string[]
   compilerLog: string
+  /** Per-concept breakdown for the chosen side */
+  signals?: ConceptSignal[]
+  scores?: { buy: number; sell: number }
+  candlesAnalyzed?: number
+  /** True when no real candles were supplied and synthetic sample data was used */
+  usedSampleData?: boolean
+  blockedBy?: string
 }

@@ -7,6 +7,7 @@ import { workflowRouter } from './routes/workflows'
 import { credentialRouter } from './routes/credentials'
 import { nodeRouter } from './routes/nodes'
 import { executionRouter } from './routes/executions'
+import { hooksRouter } from './routes/hooks'
 
 dotenv.config()
 
@@ -33,6 +34,7 @@ app.use('/api/workflows', workflowRouter)
 app.use('/api/credentials', credentialRouter)
 app.use('/api/nodes', nodeRouter)
 app.use('/api/executions', executionRouter)
+app.use('/api/hooks', hooksRouter)
 
 // 404 Handler
 app.use((_req, res) => {

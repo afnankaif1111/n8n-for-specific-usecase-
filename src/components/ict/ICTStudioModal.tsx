@@ -48,15 +48,15 @@ export function ICTStudioModal({
 
   // Concept states
   const [fvgEnabled, setFvgEnabled] = useState(initialState?.fvg?.enabled ?? true)
-  const [fvgDirection, setFvgDirection] = useState<'bullish_bisi' | 'bearish_sibi'>(
-    initialState?.fvg?.direction ?? 'bullish_bisi'
+  const [fvgDirection, setFvgDirection] = useState<'auto' | 'bullish_bisi' | 'bearish_sibi'>(
+    initialState?.fvg?.direction ?? 'auto'
   )
   const [fvgMinSize, setFvgMinSize] = useState(initialState?.fvg?.minSizePips ?? 2.5)
   const [fvgWeight, setFvgWeight] = useState(initialState?.fvg?.weight ?? 25)
 
   const [obEnabled, setObEnabled] = useState(initialState?.orderBlock?.enabled ?? true)
-  const [obDirection, setObDirection] = useState<'bullish' | 'bearish'>(
-    initialState?.orderBlock?.direction ?? 'bullish'
+  const [obDirection, setObDirection] = useState<'auto' | 'bullish' | 'bearish'>(
+    initialState?.orderBlock?.direction ?? 'auto'
   )
   const [obWeight, setObWeight] = useState(initialState?.orderBlock?.weight ?? 25)
 
@@ -75,6 +75,7 @@ export function ICTStudioModal({
   const [kzEnabled, setKzEnabled] = useState(initialState?.killzone?.enabled ?? true)
   const [kzWeight, setKzWeight] = useState(initialState?.killzone?.weight ?? 5)
 
+  const [candlesJson, setCandlesJson] = useState(initialState?.candlesJson ?? '')
   const [threshold, setThreshold] = useState(initialState?.minConfluenceThreshold ?? 75)
 
   // C++ Engine states
@@ -130,6 +131,7 @@ export function ICTStudioModal({
     },
     cppSource: cppCode,
     minConfluenceThreshold: threshold,
+    candlesJson,
   })
 
   const handleCompileCpp = () => {
@@ -269,6 +271,7 @@ export function ICTStudioModal({
                         onChange={(e) => setFvgDirection(e.target.value as any)}
                         className="text-xs rounded border border-border bg-background px-2 py-0.5"
                       >
+                        <option value="auto">Auto (both sides)</option>
                         <option value="bullish_bisi">BISI (Bullish)</option>
                         <option value="bearish_sibi">SIBI (Bearish)</option>
                       </select>
@@ -339,6 +342,7 @@ export function ICTStudioModal({
                         onChange={(e) => setObDirection(e.target.value as any)}
                         className="text-xs rounded border border-border bg-background px-2 py-0.5"
                       >
+                        <option value="auto">Auto (both sides)</option>
                         <option value="bullish">Bullish Demand OB</option>
                         <option value="bearish">Bearish Supply OB</option>
                       </select>
@@ -668,6 +672,24 @@ export function ICTStudioModal({
 
                 {/* Compiler Diagnostics & Execution Output */}
                 <div className="space-y-3">
+                  {/* Market data fed to the engine */}
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-semibold text-foreground">
+                      Candles (JSON, optional) — leave empty to use synthetic sample data
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={candlesJson}
+                      onChange={(e) => setCandlesJson(e.target.value)}
+                      placeholder='[{"time":1735700000,"open":1.0921,"high":1.0925,"low":1.0919,"close":1.0924}, ...] (≥ 30 candles)'
+                      className="w-full font-mono text-[10px] rounded-lg border border-border bg-background p-2 resize-none"
+                      spellCheck={false}
+                    />
+                    <p className="text-[10px] text-muted-foreground">
+                      In a running workflow, candles from an upstream node take priority over this field.
+                    </p>
+                  </div>
+
                   {/* Compiler Terminal Output */}
                   <div className="rounded-xl border border-border bg-black p-3 space-y-2">
                     <div className="flex items-center justify-between pb-1.5 border-b border-border/40 text-xs">
@@ -703,7 +725,10 @@ export function ICTStudioModal({
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 font-bold text-foreground">
                           <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                          <span>Simulation Output: {evalResult.direction} EUR/USD</span>
+                          <span>
+                            {evalResult.direction}
+                            {evalResult.usedSampleData ? ' · synthetic sample data' : ` · ${evalResult.candlesAnalyzed} candles`}
+                          </span>
                         </div>
                         <span className="font-mono font-bold text-sm text-emerald-600 dark:text-emerald-400">
                           {evalResult.confluenceScore}% Confluence
@@ -724,6 +749,17 @@ export function ICTStudioModal({
                           <div className="font-semibold text-emerald-500">{evalResult.takeProfit}</div>
                         </div>
                       </div>
+
+                      {evalResult.signals && (
+                        <ul className="space-y-0.5 text-[10px] font-mono">
+                          {evalResult.signals.map((sg) => (
+                            <li key={sg.id} className={sg.hit ? 'text-emerald-500' : 'text-muted-foreground'}>
+                              {sg.hit ? '✓' : '✗'} {sg.name}: {sg.detail}
+                            </li>
+                          ))}
+                          {evalResult.blockedBy && <li className="text-amber-500">⚠ {evalResult.blockedBy}</li>}
+                        </ul>
+                      )}
 
                       <div className="text-[10px] text-muted-foreground pt-1 flex flex-wrap gap-1">
                         <span className="font-semibold">Triggered by:</span>

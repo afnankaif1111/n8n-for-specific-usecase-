@@ -19,6 +19,7 @@ import {
   Cpu,
   Layers,
   Flame,
+  Calculator,
 } from 'lucide-react'
 import type { IntermediateKind } from '@/components/nodes/intermediate'
 
@@ -51,6 +52,21 @@ export interface IntermediateDefinition {
 }
 
 export const INTERMEDIATE_OPTIONS: IntermediateDefinition[] = [
+  {
+    kind: 'position-size',
+    title: 'Position Size',
+    subtitle: 'Fixed % risk lot calculator',
+    description: 'Computes the lot size from account balance, risk % and the stop-loss distance, then feeds it to the action.',
+    icon: Calculator,
+    defaultLabel: 'Position Size (1% Risk)',
+    color: 'text-violet-500 bg-violet-500/10 border-violet-500/20',
+    badgeColor: 'bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/30',
+    defaultModel: 'Fixed % Risk',
+    availableModels: ['Fixed % Risk'],
+    credentialName: 'Not Required (Internal Rule)',
+    defaultKey: '',
+    presets: [{ label: 'Position Size (1% Risk)', prompt: 'Risk 1% of the account per trade, sized from the stop-loss distance.' }],
+  },
   {
     kind: 'smart-ict',
     title: 'Smart ICT Engine',
@@ -91,7 +107,7 @@ export const INTERMEDIATE_OPTIONS: IntermediateDefinition[] = [
     defaultModel: 'gemini-2.0-flash',
     availableModels: ['gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-1.5-flash'],
     credentialName: 'Google Gemini API Key',
-    defaultKey: 'AIzaSyBv9xK72m8L10qPz-demo',
+    defaultKey: '',
     presets: [
       {
         label: 'Forex Macro News Sentiment Scanner',
@@ -123,7 +139,7 @@ export const INTERMEDIATE_OPTIONS: IntermediateDefinition[] = [
     defaultModel: 'gpt-4o',
     availableModels: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'o3-mini'],
     credentialName: 'OpenAI API Key',
-    defaultKey: 'sk-proj-a9Xk27LmPo81WqBv44demo',
+    defaultKey: '',
     presets: [
       {
         label: 'Cross-Check MT5 Order vs Support/Resistance',
@@ -152,10 +168,10 @@ export const INTERMEDIATE_OPTIONS: IntermediateDefinition[] = [
     defaultLabel: 'Claude: Risk & Trend Evaluator',
     color: 'text-amber-500 bg-amber-500/10 border-amber-500/20',
     badgeColor: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30',
-    defaultModel: 'claude-3-5-sonnet',
-    availableModels: ['claude-3-5-sonnet', 'claude-3-5-haiku', 'claude-3-opus'],
+    defaultModel: 'claude-sonnet-5-5',
+    availableModels: ['claude-sonnet-5-5', 'claude-haiku-5-5', 'claude-opus-5-5'],
     credentialName: 'Anthropic API Key',
-    defaultKey: 'sk-ant-api03-x88NmKwL20-demo',
+    defaultKey: '',
     presets: [
       {
         label: 'Multi-Timeframe Trend Confirmation',
@@ -223,7 +239,7 @@ export function IntermediateSheet({ onAddIntermediate, triggerElement }: Interme
 
   // Config parameters
   const [model, setModel] = useState('gemini-2.0-flash')
-  const [apiKey, setApiKey] = useState('AIzaSyBv9xK72m8L10qPz-demo')
+  const [apiKey, setApiKey] = useState('')
   const [promptTask, setPromptTask] = useState(
     'Analyze current central bank speeches and high-impact economic news releases to determine EUR/USD sentiment.'
   )
@@ -258,7 +274,7 @@ export function IntermediateSheet({ onAddIntermediate, triggerElement }: Interme
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const label = customLabel.trim() || activeOption.defaultLabel
-    const subtitle = activeOption.kind === 'condition' ? 'Rule logic pass check' : `${model} • Side Handles`
+    const subtitle = activeOption.kind === 'condition' || activeOption.kind === 'position-size' ? 'Rule logic pass check' : `${model} • Side Handles`
 
     const config: IntermediateConfig = {
       model,
@@ -394,7 +410,7 @@ export function IntermediateSheet({ onAddIntermediate, triggerElement }: Interme
               </div>
             </div>
 
-            {activeOption.kind !== 'condition' && (
+            {activeOption.kind !== 'condition' && activeOption.kind !== 'position-size' && (
               <div className="space-y-1">
                 <label className="text-xs font-medium text-foreground flex items-center justify-between">
                   <span>{activeOption.credentialName}</span>
